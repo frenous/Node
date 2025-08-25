@@ -1,0 +1,4521 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analyseur de Crash | Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --primary-light: #4895ef;
+            --primary-dark: #3f37c9;
+            --secondary-color: #f72585;
+            --success-color: #4cc9f0;
+            --warning-color: #f8961e;
+            --danger-color: #ef476f;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --gray-color: #6c757d;
+            --background-color: #f5f7fa;
+            --card-color: #ffffff;
+            --border-radius: 12px;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --transition: all 0.3s ease;
+        }
+
+        @keyframes slideInFromLeft {
+            from {
+                transform: translateX(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideInFromRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeInScale {
+            from {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes progressFill {
+            from {
+                width: 0;
+            }
+            to {
+                width: var(--target-width);
+            }
+        }
+
+        @keyframes numberCount {
+            from {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes rankingMove {
+            from {
+                transform: translateY(var(--from-position));
+            }
+            to {
+                transform: translateY(0);
+            }
+        }
+
+        /* Nouvelles animations pour le déplacement du classement */
+        @keyframes rankingMoveUp {
+            0% {
+                transform: translateY(0);
+                box-shadow: var(--shadow);
+            }
+            50% {
+                transform: translateY(-10px) scale(1.02);
+                box-shadow: 0 8px 25px rgba(46, 204, 113, 0.3);
+                background: linear-gradient(135deg, rgba(46, 204, 113, 0.15), rgba(46, 204, 113, 0.05));
+            }
+            100% {
+                transform: translateY(0);
+                box-shadow: var(--shadow);
+            }
+        }
+
+        @keyframes rankingMoveDown {
+            0% {
+                transform: translateY(0);
+                box-shadow: var(--shadow);
+            }
+            50% {
+                transform: translateY(10px) scale(0.98);
+                box-shadow: 0 2px 8px rgba(231, 76, 60, 0.3);
+                background: linear-gradient(135deg, rgba(231, 76, 60, 0.15), rgba(231, 76, 60, 0.05));
+            }
+            100% {
+                transform: translateY(0);
+                box-shadow: var(--shadow);
+            }
+        }
+
+        @keyframes rankingStable {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.01);
+                box-shadow: 0 6px 15px rgba(67, 97, 238, 0.2);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        @keyframes positionBadgeUp {
+            0% { 
+                transform: scale(1);
+                color: var(--primary-color);
+            }
+            50% { 
+                transform: scale(1.2);
+                color: #2ecc71;
+                text-shadow: 0 0 10px rgba(46, 204, 113, 0.5);
+            }
+            100% { 
+                transform: scale(1);
+                color: var(--primary-color);
+            }
+        }
+
+        @keyframes positionBadgeDown {
+            0% { 
+                transform: scale(1);
+                color: var(--primary-color);
+            }
+            50% { 
+                transform: scale(1.2);
+                color: #e74c3c;
+                text-shadow: 0 0 10px rgba(231, 76, 60, 0.5);
+            }
+            100% { 
+                transform: scale(1);
+                color: var(--primary-color);
+            }
+        }
+
+        @keyframes changeIconPulse {
+            0% { 
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% { 
+                transform: scale(1.3);
+                opacity: 0.8;
+            }
+            100% { 
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* Animation pour l'indicateur de plage active */
+        @keyframes activePulse {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.7);
+            }
+            70% {
+                transform: scale(1.1);
+                box-shadow: 0 0 0 8px rgba(46, 204, 113, 0);
+            }
+            100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(46, 204, 113, 0);
+            }
+        }
+
+        @keyframes activeGlow {
+            0%, 100% {
+                box-shadow: 0 0 5px rgba(46, 204, 113, 0.5);
+            }
+            50% {
+                box-shadow: 0 0 15px rgba(46, 204, 113, 0.8);
+            }
+        }
+
+        /* Animations pour l'équilibre */
+        @keyframes balancePulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        @keyframes balanceGlow {
+            0%, 100% {
+                box-shadow: 0 0 5px rgba(67, 97, 238, 0.3);
+            }
+            50% {
+                box-shadow: 0 0 15px rgba(67, 97, 238, 0.6);
+            }
+        }
+
+        /* Notification */
+        .notification {
+            position: fixed;
+            bottom: 30px;
+            left: -300px;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg);
+            transition: all 0.5s ease;
+            z-index: 1000;
+            opacity: 0;
+            max-width: 350px;
+            word-break: break-word;
+        }
+
+        button {
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
+            box-shadow: none;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        button:focus,
+        button:active,
+        button:hover {
+            background-color: #007bff;
+            outline: none;
+            box-shadow: none;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-family: inherit;
+            cursor: pointer;
+            transition: transform 0.1s ease-in-out;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
+            box-shadow: none;
+            appearance: none;
+        }
+
+        button:active {
+            transform: scale(0.99);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--dark-color);
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Login Overlay */
+        .login-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(67, 97, 238, 0.9), rgba(63, 55, 201, 0.9));
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .login-card {
+            background-color: var(--card-color);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg);
+            padding: 2rem;
+            width: 100%;
+            max-width: 420px;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .login-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .login-header i {
+            font-size: 2rem;
+            margin-right: 1rem;
+            color: var(--primary-color);
+        }
+
+        .login-header h2 {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--gray-color);
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray-color);
+        }
+
+        .input-wrapper input {
+            width: 95%;
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            border: 1px solid #e2e8f0;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .input-wrapper input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.25);
+        }
+
+        button {
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            font-weight: 500;
+            text-align: center;
+            gap: 0.5rem;
+        }
+
+        .primary-btn {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .primary-btn:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .btn-secondary {
+            background-color: var(--gray-color);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #7f8c8d;
+        }
+
+        .history-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .total-count {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--primary-color);
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .secondary-btn {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        .secondary-btn:hover {
+            background-color: #d61d74;
+        }
+
+        .full-width {
+            width: 100%;
+        }
+
+        .error-message {
+            color: var(--danger-color);
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+            display: none;
+        }
+
+        /* Volume slider styling */
+        #soundVolume {
+            -webkit-appearance: none;
+            height: 6px;
+            border-radius: 3px;
+            background: #e2e8f0;
+            outline: none;
+        }
+
+        #soundVolume::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            cursor: pointer;
+        }
+
+        #soundVolume::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            cursor: pointer;
+            border: none;
+        }
+
+        /* Connection Status */
+        .connection-status {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            z-index: 200;
+            transition: var(--transition);
+        }
+
+        .connection-status.connected {
+            background-color: rgba(46, 204, 113, 0.1);
+            color: #2ecc71;
+            border: 1px solid rgba(46, 204, 113, 0.3);
+        }
+
+        .connection-status.disconnected {
+            background-color: rgba(231, 76, 60, 0.1);
+            color: #e74c3c;
+            border: 1px solid rgba(231, 76, 60, 0.3);
+        }
+
+        .connection-status.connecting {
+            background-color: rgba(52, 152, 219, 0.1);
+            color: #3498db;
+            border: 1px solid rgba(52, 152, 219, 0.3);
+        }
+
+        /* Coefficient display */
+        .coefficient-display {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            z-index: 200;
+            min-width: 120px;
+            font-weight: 600;
+            cursor: move;
+            user-select: none;
+            transition: box-shadow 0.2s ease;
+        }
+
+        .coefficient-display:hover {
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .coefficient-display.dragging {
+            opacity: 0.8;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            transform: scale(1.05);
+        }
+
+        .coefficient-label {
+            font-size: 0.75rem;
+            opacity: 0.8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .coefficient-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fff;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .coefficient-display.pulsing {
+            animation: pulse 0.8s ease-in-out;
+        }
+
+        /* Header */
+        header {
+            background-color: var(--card-color);
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .solde {
+            background-color: rgba(67, 97, 238, 0.1);
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-weight: 500;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .user-info i {
+            font-size: 1.25rem;
+            color: var(--primary-color);
+        }
+
+        #logoutBtn {
+            background: none;
+            border: none;
+            color: var(--gray-color);
+            font-size: 1rem;
+            padding: 0.25rem;
+            border-radius: 50%;
+        }
+
+        #logoutBtn:hover {
+            color: var(--danger-color);
+            background-color: rgba(239, 71, 111, 0.1);
+        }
+
+        /* Main Layout */
+        .dashboard-container {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            grid-gap: 1.5rem;
+            padding: 1.5rem;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .panel {
+            background-color: var(--card-color);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            animation: slideInFromLeft 0.5s ease-out;
+        }
+
+        .panel:hover {
+            box-shadow: var(--shadow-lg);
+        }
+
+        .panel h3 {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--primary-color);
+            font-weight: 600;
+            font-size: 1.25rem;
+        }
+
+        .input-group {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 0.75rem 3rem 0.75rem 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.25);
+        }
+
+        .input-suffix {
+            position: absolute;
+            right: 1rem;
+            color: var(--gray-color);
+            font-size: 0.875rem;
+        }
+
+        .switch-group {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--primary-color);
+        }
+
+        input:focus + .slider {
+            box-shadow: 0 0 1px var(--primary-color);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        /* Bet Panel */
+        .bet-panel {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+        }
+
+        .bet-panel h3 {
+            color: white;
+        }
+
+        .bet-panel label {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .bet-panel .input-group input {
+            background-color: rgba(255, 255, 255, 0.15);
+            border-color: transparent;
+            color: white;
+        }
+
+        .bet-panel .input-suffix {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .bet-panel .btn {
+            background-color: white;
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-top: 1rem;
+        }
+
+        .bet-panel .btn:hover {
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+
+        /* Settings Panel */
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .toggle-btn {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            font-size: 1rem;
+            padding: 0.25rem;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .toggle-btn:hover {
+            background-color: rgba(67, 97, 238, 0.1);
+        }
+
+        .panel-content {
+            overflow: hidden;
+            max-height: 800px;
+            transition: max-height 0.3s ease;
+        }
+
+        .collapsed .panel-content {
+            max-height: 0;
+        }
+
+        .color-picker-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .color-preview {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 2px solid #e2e8f0;
+        }
+
+        .collapsible-header {
+            padding: 0.75rem 1rem;
+            background-color: #f8f9fa;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            transition: background-color 0.3s ease;
+        }
+
+        .collapsible-header:hover {
+            background-color: #e9ecef;
+        }
+
+        .collapsible-content {
+            margin-bottom: 1rem;
+        }
+
+        .toggle-icon {
+            transition: transform 0.3s ease;
+        }
+
+        .settings-panel .collapsible-header {
+            background-color: rgba(67, 97, 238, 0.05);
+            border: 1px solid rgba(67, 97, 238, 0.1);
+        }
+
+        .settings-panel .collapsible-header:hover {
+            background-color: rgba(67, 97, 238, 0.1);
+        }
+
+        .settings-panel {
+            min-height: auto;
+        }
+
+        .settings-panel .panel-content {
+            overflow-y: auto;
+        }
+
+        .settings-group {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .settings-group:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .settings-group h4 {
+            font-size: 0.9rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Range Rankings with Enhanced Animations */
+        .rankings-container {
+            background-color: var(--card-color);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            animation: slideUp 0.6s ease-out;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .rankings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .rankings-header h3 {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--primary-color);
+            font-weight: 600;
+            font-size: 1.25rem;
+            margin: 0;
+        }
+
+        /* Style pour le sélecteur de méthode */
+        .ranking-method-selector {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .ranking-method-selector label {
+            color: var(--gray-color);
+            font-weight: 500;
+        }
+
+        .ranking-method-selector select {
+            padding: 0.25rem 0.5rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            background-color: white;
+            font-size: 0.85rem;
+            min-width: 120px;
+            cursor: pointer;
+        }
+
+        .ranking-method-selector select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(67, 97, 238, 0.25);
+        }
+
+        .rankings-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            position: relative;
+        }
+
+        .ranking-item {
+            background: linear-gradient(135deg, rgba(67, 97, 238, 0.05), rgba(67, 97, 238, 0.02));
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            border: 1px solid rgba(67, 97, 238, 0.1);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            transform-origin: center;
+        }
+
+        .ranking-item:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        /* Classes d'animation pour les mouvements de classement */
+        .ranking-item.moving-up {
+            animation: rankingMoveUp 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 10;
+        }
+
+        .ranking-item.moving-down {
+            animation: rankingMoveDown 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 5;
+        }
+
+        .ranking-item.stable {
+            animation: rankingStable 0.8s ease-out;
+        }
+
+        /* Indicateur de plage active */
+        .ranking-item.active-range {
+            border-color: #2ecc71;
+            background: linear-gradient(135deg, rgba(46, 204, 113, 0.15), rgba(46, 204, 113, 0.05));
+        }
+
+        .ranking-position {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            min-width: 40px;
+            text-align: center;
+            transition: all 0.4s ease;
+        }
+
+        /* Animation pour les badges de position */
+        .ranking-position.position-up {
+            animation: positionBadgeUp 1s ease-out;
+        }
+
+        .ranking-position.position-down {
+            animation: positionBadgeDown 1s ease-out;
+        }
+
+        .ranking-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        /* Indicateur actif sur le point de couleur */
+        .ranking-color.active {
+            animation: activePulse 2s infinite;
+        }
+
+        .ranking-color.active::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 8px;
+            height: 8px;
+            background-color: white;
+            border-radius: 50%;
+            animation: activeGlow 1.5s infinite alternate;
+        }
+
+        .ranking-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .ranking-name {
+            font-weight: 600;
+            color: var(--dark-color);
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Indicateur actif dans le nom */
+        .ranking-name .active-indicator {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 16px;
+            height: 16px;
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            border-radius: 50%;
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
+            animation: activePulse 2s infinite;
+        }
+
+        .ranking-stats {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 0.875rem;
+            color: var(--gray-color);
+        }
+
+        .ranking-percentage {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1rem;
+            min-width: 70px;
+            text-align: center;
+        }
+
+        .ranking-change {
+            font-size: 1.25rem;
+            min-width: 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .ranking-change.up {
+            color: var(--success-color);
+            animation: changeIconPulse 0.8s ease-out;
+        }
+
+        .ranking-change.down {
+            color: var(--danger-color);
+            animation: changeIconPulse 0.8s ease-out;
+        }
+
+        .ranking-change.same {
+            color: var(--gray-color);
+        }
+
+        /* Effet de trail/traînée pour les éléments qui bougent */
+        .ranking-item.moving-up::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent, rgba(46, 204, 113, 0.1), transparent);
+            opacity: 0;
+            animation: trailUp 1.2s ease-out;
+            pointer-events: none;
+        }
+
+        .ranking-item.moving-down::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent, rgba(231, 76, 60, 0.1), transparent);
+            opacity: 0;
+            animation: trailDown 1.2s ease-out;
+            pointer-events: none;
+        }
+
+        @keyframes trailUp {
+            0% {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            50% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+        }
+
+        @keyframes trailDown {
+            0% {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            50% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+        }
+
+        /* NOUVEAU: Styles pour les cartes statistiques principales */
+        .stats-cards-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .stats-card-main {
+            background: linear-gradient(135deg, rgba(67, 97, 238, 0.05), rgba(67, 97, 238, 0.02));
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            position: relative;
+            border: 1px solid rgba(67, 97, 238, 0.1);
+            animation: fadeInScale 0.5s ease-out;
+        }
+
+        .stats-card-main.updating {
+            animation: balancePulse 0.6s ease-out, balanceGlow 2s ease-in-out;
+        }
+
+        .stats-main-icon {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            opacity: 0.3;
+        }
+
+        .stats-main-title {
+            font-size: 0.9rem;
+            color: var(--gray-color);
+            font-weight: 500;
+            text-align: center;
+        }
+
+        .stats-main-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-align: center;
+        }
+
+        .stats-main-subvalue {
+            font-size: 0.8rem;
+            color: var(--gray-color);
+            text-align: center;
+        }
+
+        .stats-main-subvalue span {
+            font-weight: 500;
+            color: var(--primary-color);
+        }
+
+        .stats-main-controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .stats-main-control {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            font-size: 0.8rem;
+        }
+
+        .stats-main-control label {
+            color: var(--gray-color);
+            font-weight: 500;
+            margin: 0;
+        }
+
+        .stats-main-control input {
+            width: 60px;
+            padding: 0.2rem 0.4rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            text-align: center;
+        }
+
+        /* Équilibre des pourcentages */
+        .balance-equilibrium {
+            background: linear-gradient(135deg, rgba(243, 156, 18, 0.05), rgba(243, 156, 18, 0.02));
+            border: 1px solid rgba(243, 156, 18, 0.1);
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            animation: fadeInScale 0.5s ease-out;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+
+        .balance-equilibrium.updating {
+            animation: balancePulse 0.6s ease-out, balanceGlow 2s ease-in-out;
+        }
+
+        .balance-icon {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 1.5rem;
+            color: #f39c12;
+            opacity: 0.3;
+        }
+
+        .balance-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #f39c12;
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .balance-status {
+            font-size: 0.9rem;
+            text-align: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+            font-weight: 500;
+            margin-bottom: 0.75rem;
+        }
+
+        .balance-status.tres-equilibre {
+            background-color: rgba(46, 204, 113, 0.1);
+            color: #2ecc71;
+            border: 1px solid rgba(46, 204, 113, 0.3);
+        }
+
+        .balance-status.equilibre {
+            background-color: rgba(52, 152, 219, 0.1);
+            color: #3498db;
+            border: 1px solid rgba(52, 152, 219, 0.3);
+        }
+
+        .balance-status.moderement-equilibre {
+            background-color: rgba(243, 156, 18, 0.1);
+            color: #f39c12;
+            border: 1px solid rgba(243, 156, 18, 0.3);
+        }
+
+        .balance-status.desequilibre {
+            background-color: rgba(230, 126, 34, 0.1);
+            color: #e67e22;
+            border: 1px solid rgba(230, 126, 34, 0.3);
+        }
+
+        .balance-status.tres-desequilibre {
+            background-color: rgba(231, 76, 60, 0.1);
+            color: #e74c3c;
+            border: 1px solid rgba(231, 76, 60, 0.3);
+        }
+
+        .balance-details {
+            font-size: 0.8rem;
+            color: var(--gray-color);
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        .balance-progress {
+            height: 8px;
+            background-color: #ecf0f1;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+
+        .balance-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #e74c3c 0%, #f39c12 25%, #f1c40f 50%, #3498db 75%, #2ecc71 100%);
+            transition: width 0.8s ease;
+            border-radius: 4px;
+        }
+
+        .balance-reset-btn {
+            margin-top: 0.75rem;
+            background-color: #95a5a6;
+            color: white;
+            border: none;
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .balance-reset-btn:hover {
+            background-color: #7f8c8d;
+            transform: translateY(-1px);
+        }
+
+        /* NOUVEAU: Modal de confirmation pour la taille d'historique */
+        .history-size-confirmation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .history-size-card {
+            background-color: var(--card-color);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg);
+            padding: 2rem;
+            width: 100%;
+            max-width: 450px;
+            margin: 1rem;
+            animation: slideUp 0.3s ease;
+        }
+
+        .history-size-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .history-size-header i {
+            font-size: 2rem;
+            margin-right: 1rem;
+            color: var(--warning-color);
+        }
+
+        .history-size-header h3 {
+            color: var(--warning-color);
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .history-size-body {
+            margin-bottom: 2rem;
+        }
+
+        .history-size-display {
+            background: linear-gradient(135deg, rgba(248, 150, 30, 0.1), rgba(248, 150, 30, 0.05));
+            border: 2px solid rgba(248, 150, 30, 0.3);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            text-align: center;
+            margin: 1rem 0;
+        }
+
+        .history-size-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--warning-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .history-size-label {
+            font-size: 0.9rem;
+            color: var(--gray-color);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .history-size-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .history-size-btn {
+            flex: 1;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .history-size-cancel {
+            background-color: var(--gray-color);
+            color: white;
+        }
+
+        .history-size-cancel:hover {
+            background-color: #7f8c8d;
+        }
+
+        .history-size-confirm {
+            background-color: var(--warning-color);
+            color: white;
+        }
+
+        .history-size-confirm:hover {
+            background-color: #e67e22;
+        }
+
+        /* Chart Panel */
+        .chart-panel {
+            background-color: var(--card-color);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
+            transition: var(--transition);
+            animation: slideInFromRight 0.5s ease-out;
+        }
+
+        .chart-controls {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .chart-controls select {
+            padding: 0.5rem 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: var(--border-radius);
+            background-color: white;
+            font-size: 0.9rem;
+            min-width: 150px;
+        }
+
+        .chart-controls select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.25);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin-bottom: 1rem;
+        }
+
+        .chart-legend {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        /* Main Content */
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .wide-panel {
+            width: 100%;
+            animation: slideInFromRight 0.5s ease-out;
+        }
+
+        .panel-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .timestamp {
+            color: var(--gray-color);
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* MODIFIÉ: Ancien stats-grid remplacé par les nouvelles cartes principales */
+        .stat-subvalue {
+            font-size: 0.8rem;
+            color: var(--gray-color);
+            margin-top: 0.25rem;
+        }
+
+        .stat-subvalue small {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .stat-subvalue span {
+            font-weight: 500;
+            color: var(--primary-color);
+        }
+
+        #resetStatsBtn {
+            margin-top: 0.5rem;
+            background-color: var(--danger-color);
+        }
+
+        #resetStatsBtn:hover {
+            background-color: #d63031;
+        }
+
+        .stat-card {
+            background-color: rgba(67, 97, 238, 0.05);
+            border-radius: var(--border-radius);
+            padding: 1.2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            position: relative;
+            border: 1px solid rgba(67, 97, 238, 0.1);
+            animation: fadeInScale 0.5s ease-out;
+            min-height: 140px;
+        }
+
+        /* Cartes compactes pour médiane et moyenne */
+        .stat-card.compact {
+            padding: 1rem;
+            min-height: 120px;
+        }
+
+        .stat-icon {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 1.2rem;
+            color: var(--primary-color);
+            opacity: 0.3;
+        }
+
+        .stat-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        .stat-title {
+            font-size: 0.8rem;
+            color: var(--gray-color);
+            font-weight: 500;
+        }
+
+        .stat-value {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .inline-form {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            margin-top: 0.5rem;
+        }
+
+        .inline-form label {
+            margin-bottom: 0;
+            white-space: nowrap;
+            font-size: 0.75rem;
+            color: var(--gray-color);
+        }
+
+        .inline-form input {
+            width: 60px;
+            padding: 0.2rem 0.4rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+
+        /* Bouton de réinitialisation général */
+        .reset-stats-card {
+            background-color: rgba(67, 97, 238, 0.05);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            position: relative;
+            border: 1px solid rgba(67, 97, 238, 0.1);
+            animation: fadeInScale 0.5s ease-out;
+            margin-bottom: 1rem;
+        }
+
+        .reset-stats-icon {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 1.5rem;
+            color: var(--danger-color);
+            opacity: 0.3;
+        }
+
+        .reset-stats-title {
+            font-size: 0.9rem;
+            color: var(--gray-color);
+            font-weight: 500;
+            text-align: center;
+        }
+
+        /* Ranges Section */
+        .ranges-container {
+            background-color: var(--card-color);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        .ranges-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .ranges-header h3 {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--primary-color);
+            font-weight: 600;
+            font-size: 1.25rem;
+            margin: 0;
+        }
+
+        .ranges-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1rem;
+        }
+
+        .range-card {
+            background-color: var(--card-color);
+            border-radius: var(--border-radius);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            padding: 1rem;
+            border: 1px solid #e2e8f0;
+            transition: var(--transition);
+            animation: fadeInScale 0.5s ease-out;
+            position: relative;
+        }
+
+        .range-card:hover {
+            box-shadow: var(--shadow);
+            transform: translateY(-2px);
+        }
+
+        .range-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .range-title {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 500;
+        }
+
+        .range-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .range-delete {
+            background: none;
+            border: none;
+            color: var(--gray-color);
+            font-size: 0.875rem;
+            padding: 0.25rem;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .range-delete:hover {
+            color: var(--danger-color);
+            background-color: rgba(239, 71, 111, 0.1);
+        }
+
+        .range-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .range-stat {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .range-stat span:first-child {
+            font-size: 0.75rem;
+            color: var(--gray-color);
+        }
+
+        .range-stat span:last-child {
+            font-weight: 500;
+            animation: numberCount 0.5s ease-out;
+        }
+
+        .range-progress {
+            height: 6px;
+            background-color: #e2e8f0;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .range-progress-bar {
+            height: 100%;
+            transition: width 0.8s ease;
+            animation: progressFill 1s ease-out;
+        }
+
+        /* History Section */
+        .history-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .history-controls select {
+            padding: 0.25rem 0.5rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            background-color: white;
+        }
+
+        .history-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+            gap: 0.5rem;
+        }
+
+        .history-item {
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 8px;
+            font-weight: 500;
+            color: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease;
+            animation: fadeInScale 0.3s ease-out;
+        }
+
+        .history-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .history-pagination {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+        }
+
+        .page-info {
+            font-size: 0.875rem;
+            color: var(--gray-color);
+        }
+
+        .pagination-controls {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .pagination-btn {
+            background-color: var(--light-color);
+            border: 1px solid #e2e8f0;
+            border-radius: var(--border-radius);
+            padding: 0.5rem 0.75rem;
+            font-size: 0.875rem;
+            color: var(--gray-color);
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .pagination-btn:hover {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            background-color: var(--card-color);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg);
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .modal-header h3 {
+            color: var(--primary-color);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 0;
+        }
+
+        .close {
+            font-size: 1.5rem;
+            color: var(--gray-color);
+            background: none;
+            border: none;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .close:hover {
+            color: var(--danger-color);
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .modal-footer {
+            padding: 1.5rem;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        /* Floating Bet Button */
+        .floating-bet-btn {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: linear-gradient(135deg, var(--secondary-color), #d61d74);
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow-lg);
+            border: none;
+            font-size: 1.5rem;
+            z-index: 99;
+            transition: transform 0.3s ease, background 0.3s ease;
+        }
+
+        .floating-bet-btn:hover {
+            transform: translateY(-5px) scale(1.05);
+            background: linear-gradient(135deg, #d61d74, var(--secondary-color));
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .connecting {
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .dashboard-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .coefficient-display {
+                top: 70px;
+            }
+
+            .ranges-grid {
+                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            }
+
+            .stats-cards-row {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-right {
+                gap: 0.75rem;
+            }
+            
+            .ranges-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-cards-row {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .dashboard-container {
+                padding: 1rem;
+            }
+
+            .coefficient-display {
+                position: relative;
+                top: auto;
+                right: auto;
+                margin-bottom: 1rem;
+                align-self: flex-start;
+            }
+
+            .connection-status {
+                top: 10px;
+                font-size: 0.75rem;
+                padding: 0.25rem 0.75rem;
+            }
+
+            .chart-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .rankings-list {
+                gap: 0.5rem;
+            }
+
+            .ranking-item {
+                padding: 0.75rem;
+            }
+
+            .ranking-stats {
+                flex-direction: column;
+                gap: 0.25rem;
+                align-items: flex-start;
+            }
+
+            .stats-main-controls {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            header {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+            }
+            
+            .header-right {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .login-card {
+                padding: 1.5rem;
+                width: 90%;
+            }
+
+            .history-size-card {
+                padding: 1.5rem;
+                margin: 0.5rem;
+            }
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 2.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--gray-color);
+            cursor: pointer;
+            padding: 0.25rem;
+            border-radius: 50%;
+            transform: translateY(-50%) scale(1.3); /* 1.3 = 130% */;
+        }
+
+        .toggle-password:hover {
+            background-color: rgba(67, 97, 238, 0.1);
+        }
+    </style>
+
+</head>
+<body>
+    <!-- Indicateur de statut de connexion -->
+    <div id="connectionStatus" class="connection-status disconnected">
+        <i class="fas fa-wifi"></i>
+        <span>Déconnecté</span>
+    </div>
+
+    <!-- Affichage du coefficient en progression - DÉPLAÇABLE -->
+    <div id="coefficientDisplay" class="coefficient-display" style="display: none;">
+        <div class="coefficient-label">Côte actuelle</div>
+        <div id="coefficientValue" class="coefficient-value">--</div>
+    </div>
+
+    <!-- Modal de confirmation pour la taille d'historique -->
+    <div id="historySizeConfirmation" class="history-size-confirmation">
+        <div class="history-size-card">
+            <div class="history-size-header">
+                <i class="fas fa-exclamation-triangle"></i>
+                <h3>Confirmation de la taille d'historique</h3>
+            </div>
+            <div class="history-size-body">
+                <p style="margin-bottom: 1rem; line-height: 1.5; text-align: center;">
+                    Voulez-vous vraiment modifier la taille d'historique à :
+                </p>
+                <div class="history-size-display">
+                    <div id="historySizeNumber" class="history-size-number">--</div>
+                    <div class="history-size-label">valeurs maximum</div>
+                </div>
+                <p style="font-size: 0.9rem; color: var(--gray-color); text-align: center; line-height: 1.4;">
+                    Cette action ajustera les statistiques en cours.
+                </p>
+            </div>
+            <div class="history-size-actions">
+                <button id="historySizeCancel" class="history-size-btn history-size-cancel">
+                    <i class="fas fa-times"></i> Annuler
+                </button>
+                <button id="historySizeConfirm" class="history-size-btn history-size-confirm">
+                    <i class="fas fa-check"></i> Confirmer
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overlay de connexion -->
+    <div id="loginOverlay" class="login-overlay">
+        <div class="login-card">
+            <div class="login-header">
+                <i class="fas fa-chart-line"></i>
+                <h2>Analyseur de Crash</h2>
+            </div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">Nom d'utilisateur</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-user"></i>
+                        <input type="text" id="username" placeholder="admin" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="password">Mot de passe</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="password" placeholder="••••••••" required>
+                    </div>
+                </div>
+                <button type="submit" id="loginBtn" class="btn primary-btn full-width">Connexion</button>
+                <div id="loginError" class="error-message"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Header avec solde et utilisateur -->
+    <header>
+        <div class="header-left">
+            <div class="logo"><i class="fas fa-chart-line"></i> Analyseur de Crash</div>
+        </div>
+        <div class="header-right">
+            <div id="soldeAffichage" class="solde"><i class="fas fa-coins"></i> <span>-- FCFA</span></div>
+            <div class="user-info">
+                <i class="fas fa-user-circle"></i>
+                <span id="usernameDisplay">Utilisateur</span>
+                <button id="logoutBtn" title="Déconnexion"><i class="fas fa-sign-out-alt"></i></button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Conteneur principal -->
+    <div class="dashboard-container">
+        <!-- Panneau de contrôle latéral -->
+        <div class="sidebar">
+            <!-- Formulaire de pari -->
+            <div class="panel bet-panel">
+                <h3><i class="fas fa-coins"></i> Placer un pari</h3>
+                <div class="form-group">
+                    <label for="betAmount">Montant</label>
+                    <div class="input-group">
+                        <input type="number" id="betAmount" min="1" value="100" step="1">
+                        <span class="input-suffix">FCFA</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="autoCashout">Auto Cashout</label>
+                    <div class="input-group">
+                        <input type="number" id="autoCashout" min="1.01" step="0.01" value="2.00">
+                        <span class="input-suffix">x</span>
+                    </div>
+                </div>
+                <button id="placeBetBtn" class="btn primary-btn full-width"><i class="fas fa-play"></i> Placer le pari</button>
+            </div>
+
+            <!-- Paramètres avancés avec notifications sonores -->
+            <div class="panel settings-panel collapsed">
+                <div class="panel-header">
+                    <h3><i class="fas fa-cog"></i> Paramètres avancés</h3>
+                    <button id="toggleSettings" class="toggle-btn"><i class="fas fa-chevron-down"></i></button>
+                </div>
+                <div class="panel-content">
+                    <!-- Contrôles système -->
+                    <div class="settings-group">
+                        <h4><i class="fas fa-sliders-h"></i> Système</h4>
+                        
+                        <div class="form-group">
+                            <label for="historySize">Taille de l'historique</label>
+                            <div class="input-group">
+                                <input type="number" id="historySize" min="10" max="50000" value="10000">
+                                <span class="input-suffix">valeurs</span>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group switch-group">
+                            <label for="pollingToggle">Mise à jour automatique</label>
+                            <label class="switch">
+                                <input type="checkbox" id="pollingToggle">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Authentification -->
+                    <div class="settings-group">
+                        <h4><i class="fas fa-key"></i> Authentification</h4>
+                        
+                        <div class="form-group">
+                            <label for="authToken">Auth Token</label>
+                            <div class="input-wrapper">
+                                <i class="fas fa-key"></i>
+                                <input type="password" id="authToken" value="70eb6339151ce50386c914434b5d0679a3ecc3689f54f5146891dae7a83814f6cc661e4127af348615d5dde04f297a31446359e96c4c8de817ec37ecb737953090659cc69f00e0fd9badacd28c8a67e15422e30dfb558da3fd78f4d9ff44b7fbc20d15bb185a8667b5636adef9c4273b70d542c4a69d0019a91915e050451e928f86d02132787a9827f309436b8916a5ed418de1691f070475babbbf.1c071e6410d9d5628a0157cd70b4eff4.077dee8d-c923-4c02-9bee-757573662e69">
+                                <button type="button" class="toggle-password" title="Afficher/Masquer"><i class="fas fa-eye"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Audio -->
+                    <div class="settings-group">
+                        <h4><i class="fas fa-volume-up"></i> Audio</h4>
+                        
+                        <div class="form-group switch-group">
+                            <label for="soundNotifications">Notifications sonores</label>
+                            <label class="switch">
+                                <input type="checkbox" id="soundNotifications" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="soundVolume">Volume des notifications</label>
+                            <div class="input-group">
+                                <input type="range" id="soundVolume" min="0" max="100" value="50" style="width: 100%;">
+                                <span class="input-suffix" id="volumeDisplay">50%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Zone principale -->
+        <div class="main-content">
+            <!-- Statistiques générales NOUVELLES -->
+            <div class="panel wide-panel">
+                <div class="panel-header">
+                    <h3><i class="fas fa-chart-pie"></i> Statistiques générales</h3>
+                    <div id="lastUpdated" class="timestamp"><i class="far fa-clock"></i> Mise à jour: --:--:--</div>
+                </div>
+                
+                <!-- Moyenne et Médiane dans des div séparées -->
+                <div class="stats-cards-row">
+                    <!-- Moyenne générale à gauche -->
+                    <div class="stats-card-main" id="meanCard">
+                        <div class="stats-main-icon"><i class="fas fa-calculator"></i></div>
+                        <div class="stats-main-title">Moyenne générale</div>
+                        <div id="meanValue" class="stats-main-value">--</div>
+                        <div class="stats-main-subvalue">
+                            Moyenne: <span id="meanAverageValue">--</span>
+                        </div>
+                        <div class="stats-main-controls">
+                            <div class="stats-main-control">
+                                <label for="meanSize">Taille:</label>
+                                <input type="number" id="meanSize" min="10" max="1000" value="100">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Médiane à droite -->
+                    <div class="stats-card-main" id="medianCard">
+                        <div class="stats-main-icon"><i class="fas fa-chart-line"></i></div>
+                        <div class="stats-main-title">Médiane</div>
+                        <div id="medianValue" class="stats-main-value">--</div>
+                        <div class="stats-main-subvalue">
+                            Moyenne: <span id="medianAverageValue">--</span>
+                        </div>
+                        <div class="stats-main-controls">
+                            <div class="stats-main-control">
+                                <label for="medianSize">Taille:</label>
+                                <input type="number" id="medianSize" min="10" max="1000" value="50">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Équilibre des pourcentages -->
+                <div class="balance-equilibrium" id="balanceEquilibrium">
+                    <div class="balance-icon"><i class="fas fa-balance-scale"></i></div>
+                    <div class="stats-main-title" style="color: var(--gray-color); font-size: 0.875rem; text-align: center;">Équilibre des pourcentages</div>
+                    <div id="balanceValue" class="balance-value">--%</div>
+                    <div id="balanceStatus" class="balance-status">Calcul en cours...</div>
+                    <div id="balanceDetails" class="balance-details">
+                        Mesure l'équilibre entre les pourcentages actuels des plages
+                    </div>
+                    <div class="balance-progress">
+                        <div id="balanceProgressBar" class="balance-progress-bar" style="width: 0%;"></div>
+                    </div>
+                    <button id="resetBalanceBtn" class="balance-reset-btn">
+                        <i class="fas fa-redo"></i> Réinitialiser l'historique
+                    </button>
+                </div>
+
+                <!-- Réinitialisation générale -->
+                <div class="reset-stats-card">
+                    <div class="reset-stats-icon"><i class="fas fa-redo"></i></div>
+                    <div class="reset-stats-title">Réinitialisation générale</div>
+                    <button id="resetStatsBtn" class="btn secondary-btn full-width">
+                        <i class="fas fa-trash-alt"></i> Réinitialiser toutes les statistiques
+                    </button>
+                </div>
+            </div>
+
+            <!-- Classement des plages en temps réel -->
+            <div class="rankings-container">
+                <div class="rankings-header">
+                    <h3><i class="fas fa-trophy"></i> Classement des plages <small style="color: #2ecc71; font-size: 0.7rem;">(Temps réel)</small></h3>
+                    <!-- Sélecteur de méthode de classement -->
+                    <div class="ranking-method-selector">
+                        <label for="rankingMethod">Méthode:</label>
+                        <select id="rankingMethod">
+                            <option value="current">Pourcentage actuel</option>
+                            <option value="average">Moyenne historique</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="rangeRankings" class="rankings-list">
+                    <!-- Le classement sera généré dynamiquement ici -->
+                </div>
+            </div>
+
+            <!-- Analyse graphique des plages avec plusieurs types de graphiques AMÉLIORÉE -->
+            <div class="chart-panel">
+                <div class="panel-header">
+                    <h3><i class="fas fa-chart-bar"></i> Visualisation des plages</h3>
+                </div>
+                <div class="chart-controls">
+                    <label for="chartType">Type de graphique:</label>
+                    <select id="chartType">
+                        <option value="bar">Barres verticales</option>
+                        <option value="horizontalBar">Barres horizontales</option>
+                        <option value="line">Courbes d'évolution</option>
+                        <option value="area">Zones d'aires</option>
+                        <option value="scatter">Nuage de points</option>
+                        <option value="bubble">Graphique à bulles</option>
+                        <option value="doughnut">Camembert</option>
+                        <option value="pie">Graphique en secteurs</option>
+                        <option value="radar">Radar</option>
+                        <option value="polarArea">Aires polaires</option>
+                    </select>
+                    
+                    <label for="dataType">Données à afficher:</label>
+                    <select id="dataType">
+                        <option value="current">Pourcentages actuels</option>
+                        <option value="average">Moyennes historiques</option>
+                        <option value="both">Les deux</option>
+                    </select>
+                </div>
+                <div class="chart-container">
+                    <canvas id="allRangesChart"></canvas>
+                </div>
+                <div class="chart-legend" id="chartLegend">
+                    <!-- La légende sera générée dynamiquement -->
+                </div>
+            </div>
+
+            <!-- Analyse des plages -->
+            <div class="ranges-container">
+                <div class="ranges-header">
+                    <h3><i class="fas fa-chart-bar"></i> Gestion des plages</h3>
+                    <button id="addRangeBtn" class="btn secondary-btn">
+                        <i class="fas fa-plus"></i> Ajouter une plage
+                    </button>
+                </div>
+                <div id="rangesContainer" class="ranges-grid">
+                    <!-- Les plages seront générées dynamiquement ici -->
+                </div>
+            </div>
+
+            <!-- Historique des valeurs -->
+            <div class="panel wide-panel">
+                <div class="panel-header">
+                    <h3><i class="fas fa-history"></i> Historique des valeurs</h3>
+                    <div class="history-info">
+                        <div class="total-count">
+                            <i class="fas fa-list-ol"></i>
+                            Total: <span id="totalValueCount">0</span> valeurs
+                        </div>
+                        <div class="history-controls">
+                            <label for="itemsPerPage">Par page:</label>
+                            <select id="itemsPerPage">
+                                <option value="10">10</option>
+                                <option value="20">20</option>
+                                <option value="50" selected>50</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div id="historyValues" class="history-container">
+                    <!-- Les valeurs d'historique seront générées dynamiquement ici -->
+                </div>
+                <div class="history-pagination">
+                    <div class="page-info">Page <span id="currentPage">1</span> sur <span id="totalPages">1</span></div>
+                    <div class="pagination-controls">
+                        <button id="prevPageBtn" class="pagination-btn" disabled><i class="fas fa-chevron-left"></i> Précédent</button>
+                        <button id="nextPageBtn" class="pagination-btn">Suivant <i class="fas fa-chevron-right"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bouton flottant de pari -->
+    <button id="floatingBetBtn" class="floating-bet-btn" title="Placer un pari rapide">
+        <i class="fas fa-coins"></i>
+    </button>
+
+    <!-- Modal pour ajouter une plage -->
+    <div id="rangeModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-chart-bar"></i> Configurer une plage</h3>
+                <button class="close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="rangeName">Nom de la plage</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-tag"></i>
+                        <input type="text" id="rangeName" placeholder="ex: Valeurs basses">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="rangeMin">Valeur minimale (vide = aucune)</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-angle-double-down"></i>
+                        <input type="number" id="rangeMin" min="1" step="0.01" placeholder="ex: 1.5">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="rangeMax">Valeur maximale (vide = aucune)</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-angle-double-up"></i>
+                        <input type="number" id="rangeMax" min="1" step="0.01" placeholder="ex: 2.0">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="rangeColor">Couleur</label>
+                    <div class="color-picker-wrapper">
+                        <input type="color" id="rangeColor" value="#3498db">
+                        <span class="color-preview" id="colorPreview" style="background-color: #3498db;"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="rangeSize">Taille d'analyse personnalisée</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-sort-numeric-down"></i>
+                        <input type="number" id="rangeSize" min="5" max="1000" placeholder="ex: 25 (vide = historique global)">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="saveRangeBtn" class="btn primary-btn full-width"><i class="fas fa-save"></i> Enregistrer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de pari rapide -->
+    <div id="quickBetModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-bolt"></i> Pari rapide</h3>
+                <button class="close quick-bet-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="quickBetAmount">Montant</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-coins"></i>
+                        <input type="number" id="quickBetAmount" min="1" value="100" step="1">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="quickAutoCashout">Auto Cashout</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-rocket"></i>
+                        <input type="number" id="quickAutoCashout" min="1.01" step="0.01" value="2.00">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="quickPlaceBetBtn" class="btn secondary-btn full-width"><i class="fas fa-play"></i> Placer le pari</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div id="serverNotification" class="notification">
+        Notification
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/socket.io@4.7.5/client-dist/socket.io.min.js"></script>
+    <script>
+        // Variables globales
+        let audioContext = null;
+        let socket;
+        let isConnected = false;
+        let crashHistory = [];
+        let ranges = [];
+        let editingRangeIndex = -1;
+        let currentRanges = [];
+        let rangeRankings = [];
+        let previousRankings = []; // Stockage du classement précédent pour les animations
+        
+        // VARIABLE: Méthode de classement actuelle
+        let currentRankingMethod = "current"; // "current" ou "average"
+        
+        // VARIABLES MODIFIÉES: Équilibre des pourcentages
+        let currentBalanceEquilibrium = null;
+        let balanceEquilibriumHistory = [];
+        
+        // Variables de pagination
+        let currentPage = 1;
+        let itemsPerPage = 50;
+        let totalPages = 1;
+
+        // Variables de connexion
+        let connectionAttempts = 0;
+        let maxConnectionAttempts = 100;
+        let reconnectTimeout = null;
+
+        // Variables utilisateur et coefficient
+        let userInfo = {
+            userName: "Utilisateur"
+        };
+        let currentCoefficient = null;
+
+        // Variables système de déplacement pour le coefficient
+        let isDragging = false;
+        let dragOffset = { x: 0, y: 0 };
+
+        // Variables pour le graphique
+        let allRangesChart = null;
+        let currentChartType = 'bar';
+        let currentDataType = 'current';
+
+        // Variables pour les notifications sonores
+        let soundEnabled = true;
+        let soundVolume = 0.5;
+        let notificationAudio = null;
+
+        // NOUVELLES VARIABLES: Confirmation de taille d'historique
+        let pendingHistorySize = null;
+        let originalHistorySize = null;
+
+        // FONCTION POUR VIDER TOUTES LES DONNÉES CÔTÉ CLIENT
+        function clearAllClientData() {
+            console.log('🧹 Vidage des données côté client...');
+            
+            // Vider les tableaux principaux
+            crashHistory = [];
+            rangeRankings = [];
+            currentRanges = [];
+            previousRankings = [];
+            balanceEquilibriumHistory = [];
+            currentBalanceEquilibrium = null;
+            
+            // Réinitialiser les interfaces utilisateur
+            document.getElementById('rangeRankings').innerHTML = '';
+            document.getElementById('historyValues').innerHTML = '';
+            document.getElementById('rangesContainer').innerHTML = '';
+            
+            // Réinitialiser les statistiques
+            document.getElementById('medianValue').textContent = '--';
+            document.getElementById('meanValue').textContent = '--';
+            document.getElementById('medianAverageValue').textContent = '--';
+            document.getElementById('meanAverageValue').textContent = '--';
+            document.getElementById('totalValueCount').textContent = '0';
+            
+            // Réinitialiser l'équilibre
+            updateBalanceEquilibriumDisplay(null);
+            
+            // Réinitialiser le graphique
+            if (allRangesChart) {
+                allRangesChart.data.labels = [];
+                allRangesChart.data.datasets = [];
+                allRangesChart.update();
+            }
+            
+            // Réinitialiser la pagination
+            currentPage = 1;
+            totalPages = 1;
+            document.getElementById('currentPage').textContent = '1';
+            document.getElementById('totalPages').textContent = '1';
+            document.getElementById('prevPageBtn').disabled = true;
+            document.getElementById('nextPageBtn').disabled = true;
+            
+            console.log('✅ Données côté client vidées');
+        }
+
+        // FONCTION MODIFIÉE: Mettre à jour l'affichage de l'équilibre des pourcentages
+        function updateBalanceEquilibriumDisplay(balanceData) {
+            const balanceContainer = document.getElementById('balanceEquilibrium');
+            const balanceValue = document.getElementById('balanceValue');
+            const balanceStatus = document.getElementById('balanceStatus');
+            const balanceDetails = document.getElementById('balanceDetails');
+            const balanceProgressBar = document.getElementById('balanceProgressBar');
+            
+            if (!balanceData || balanceData.balance === undefined) {
+                balanceValue.textContent = '--%';
+                balanceStatus.textContent = 'Données insuffisantes';
+                balanceStatus.className = 'balance-status';
+                balanceDetails.textContent = 'Mesure l\'équilibre entre les pourcentages actuels des plages';
+                balanceProgressBar.style.width = '0%';
+                return;
+            }
+            
+            const balance = balanceData.balance;
+            const status = balanceData.status;
+            
+            // Mettre à jour la valeur avec animation
+            balanceValue.textContent = balance.toFixed(1) + '%';
+            
+            // Mettre à jour le statut avec le bon style
+            balanceStatus.textContent = status;
+            balanceStatus.className = 'balance-status ' + status.replace(/\s+/g, '-').toLowerCase();
+            
+            // Mettre à jour les détails
+            if (balanceData.rangeCount && balanceData.globalAverage !== undefined) {
+                balanceDetails.innerHTML = `
+                    ${balanceData.rangeCount} plages analysées<br>
+                    Pourcentage moyen: ${balanceData.globalAverage.toFixed(1)}%<br>
+                    Écart-type: ${balanceData.standardDeviation ? balanceData.standardDeviation.toFixed(1) : '--'}%
+                `;
+            } else {
+                balanceDetails.textContent = 'Mesure l\'équilibre entre les pourcentages actuels des plages';
+            }
+            
+            // Mettre à jour la barre de progression
+            balanceProgressBar.style.width = balance + '%';
+            
+            // Ajouter une animation de mise à jour
+            balanceContainer.classList.add('updating');
+            setTimeout(() => {
+                balanceContainer.classList.remove('updating');
+            }, 600);
+            
+            console.log(`⚖️ Équilibre affiché: ${balance.toFixed(1)}% (${status})`);
+        }
+
+        // FONCTION MODIFIÉE: Réinitialiser l'historique d'équilibre
+        function resetBalanceEquilibrium() {
+            if (!isConnected) {
+                afficherNotification("❌ Non connecté au serveur", "#e74c3c");
+                return;
+            }
+            
+            showConfirmDialog("Voulez-vous vraiment réinitialiser l'historique d'équilibre des pourcentages?\nCette action est irréversible.", () => {
+                socket.emit('message', { type: 'clearBalanceEquilibriumHistory' });
+                afficherNotification("🔄 Réinitialisation de l'équilibre en cours...", "#3498db");
+            });
+        }
+
+        // NOUVELLES FONCTIONS: Gestion de la confirmation de taille d'historique
+        function showHistorySizeConfirmation(newSize) {
+            pendingHistorySize = newSize;
+            document.getElementById('historySizeNumber').textContent = newSize;
+            document.getElementById('historySizeConfirmation').style.display = 'flex';
+        }
+
+        function confirmHistorySize() {
+            if (pendingHistorySize && isConnected) {
+                socket.emit('message', { type: 'setHistorySize', size: pendingHistorySize });
+                afficherNotification("🔄 Changement de taille d'historique en cours...", "#3498db");
+            }
+            closeHistorySizeConfirmation();
+        }
+
+        function cancelHistorySize() {
+            // Remettre l'ancienne valeur dans le champ
+            if (originalHistorySize !== null) {
+                document.getElementById('historySize').value = originalHistorySize;
+            }
+            closeHistorySizeConfirmation();
+        }
+
+        function closeHistorySizeConfirmation() {
+            document.getElementById('historySizeConfirmation').style.display = 'none';
+            pendingHistorySize = null;
+        }
+
+        // Initialiser le contexte audio et créer la notification sonore
+        function initAudioSystem() {
+            try {
+                // Créer un son de notification agréable avec Web Audio API
+                if (!audioContext) {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                
+                // Créer un son simple pour les notifications
+                createNotificationSound();
+                
+                console.log('🔊 Système audio initialisé');
+            } catch (error) {
+                console.warn('⚠️ Impossible d\'initialiser l\'audio:', error);
+            }
+        }
+
+        function createNotificationSound() {
+            if (!audioContext) return;
+            
+            // Créer un son de notification agréable (bip harmonique)
+            const createBeep = (frequency, duration, volume) => {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+                oscillator.type = 'sine';
+                
+                gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+                gainNode.gain.linearRampToValueAtTime(volume, audioContext.currentTime + 0.01);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + duration);
+            };
+            
+            notificationAudio = () => {
+                if (!soundEnabled || !audioContext) return;
+                
+                const volume = soundVolume * 0.1; // Limiter le volume max
+                
+                // Son de notification agréable (accord harmonique)
+                createBeep(800, 0.15, volume);
+                setTimeout(() => createBeep(1000, 0.15, volume), 100);
+                setTimeout(() => createBeep(1200, 0.2, volume), 200);
+            };
+        }
+
+        function playNotificationSound() {
+            if (soundEnabled && notificationAudio) {
+                try {
+                    notificationAudio();
+                } catch (error) {
+                    console.warn('⚠️ Erreur lors de la lecture du son:', error);
+                }
+            }
+        }
+
+        function updateSoundSettings() {
+            soundEnabled = document.getElementById('soundNotifications').checked;
+            soundVolume = document.getElementById('soundVolume').value / 100;
+            
+            // Sauvegarder les préférences
+            localStorage.setItem('soundEnabled', soundEnabled);
+            localStorage.setItem('soundVolume', soundVolume);
+            
+            // Mettre à jour l'affichage du volume
+            document.getElementById('volumeDisplay').textContent = Math.round(soundVolume * 100) + '%';
+            
+            // Test sonore si activé
+            if (soundEnabled) {
+                playNotificationSound();
+                afficherNotification("🔊 Notifications sonores activées", "#2ecc71");
+            } else {
+                afficherNotification("🔇 Notifications sonores désactivées", "#f39c12");
+            }
+        }
+
+        function loadSoundSettings() {
+            const savedSoundEnabled = localStorage.getItem('soundEnabled');
+            const savedSoundVolume = localStorage.getItem('soundVolume');
+            
+            if (savedSoundEnabled !== null) {
+                soundEnabled = savedSoundEnabled === 'true';
+                document.getElementById('soundNotifications').checked = soundEnabled;
+            }
+            
+            if (savedSoundVolume !== null) {
+                soundVolume = parseFloat(savedSoundVolume);
+                document.getElementById('soundVolume').value = soundVolume * 100;
+                document.getElementById('volumeDisplay').textContent = Math.round(soundVolume * 100) + '%';
+            }
+        }
+
+        // Fonction pour mettre à jour l'affichage du coefficient
+        function updateCoefficientDisplay(coefficient) {
+            const coefficientDisplay = document.getElementById('coefficientDisplay');
+            const coefficientValue = document.getElementById('coefficientValue');
+            
+            if (coefficient !== null && coefficient !== undefined) {
+                coefficientValue.textContent = coefficient.toFixed(2) + 'x';
+                coefficientDisplay.style.display = 'flex';
+                
+                // Ajouter une animation de pulsation pour indiquer la mise à jour
+                coefficientDisplay.classList.add('pulsing');
+                setTimeout(() => {
+                    coefficientDisplay.classList.remove('pulsing');
+                }, 800);
+                
+                // Mettre à jour les indicateurs de plage active
+                updateActiveRangeIndicators(coefficient);
+            } else {
+                coefficientDisplay.style.display = 'none';
+                // Retirer tous les indicateurs actifs si pas de coefficient
+                updateActiveRangeIndicators(null);
+            }
+        }
+
+        // FONCTION pour mettre à jour les indicateurs de plage active
+        function updateActiveRangeIndicators(coefficient) {
+            const rankingItems = document.querySelectorAll('.ranking-item');
+            
+            rankingItems.forEach(item => {
+                const rangeName = item.querySelector('.ranking-name').textContent.trim();
+                const colorElement = item.querySelector('.ranking-color');
+                const nameElement = item.querySelector('.ranking-name');
+                
+                // Trouver la plage correspondante
+                const matchingRange = rangeRankings.find(range => range.name === rangeName);
+                
+                if (matchingRange && coefficient !== null) {
+                    const isInRange = isValueInRange(coefficient, matchingRange);
+                    
+                    if (isInRange) {
+                        // Activer les indicateurs
+                        item.classList.add('active-range');
+                        colorElement.classList.add('active');
+                        
+                        // Ajouter l'indicateur dans le nom si pas déjà présent
+                        if (!nameElement.querySelector('.active-indicator')) {
+                            const indicator = document.createElement('span');
+                            indicator.className = 'active-indicator';
+                            indicator.innerHTML = '●';
+                            indicator.title = `Coefficient actuel: ${coefficient.toFixed(2)}x`;
+                            nameElement.appendChild(indicator);
+                        }
+                    } else {
+                        // Désactiver les indicateurs
+                        item.classList.remove('active-range');
+                        colorElement.classList.remove('active');
+                        
+                        // Retirer l'indicateur du nom
+                        const existingIndicator = nameElement.querySelector('.active-indicator');
+                        if (existingIndicator) {
+                            existingIndicator.remove();
+                        }
+                    }
+                } else {
+                    // Pas de coefficient ou plage non trouvée - désactiver tout
+                    item.classList.remove('active-range');
+                    colorElement.classList.remove('active');
+                    
+                    const existingIndicator = nameElement.querySelector('.active-indicator');
+                    if (existingIndicator) {
+                        existingIndicator.remove();
+                    }
+                }
+            });
+        }
+
+        // FONCTION UTILITAIRE pour vérifier si une valeur est dans une plage
+        function isValueInRange(value, range) {
+            const { min, max } = range;
+            
+            if (min !== null && max !== null) {
+                return value >= min && value < max;
+            } else if (min !== null) {
+                return value >= min;
+            } else if (max !== null) {
+                return value < max;
+            }
+            
+            return false;
+        }
+
+        // FONCTION pour changer la méthode de classement
+        function changeRankingMethod() {
+            const selectedMethod = document.getElementById('rankingMethod').value;
+            
+            if (selectedMethod !== currentRankingMethod && isConnected) {
+                currentRankingMethod = selectedMethod;
+                
+                socket.emit('message', {
+                    type: 'setRankingMethod',
+                    method: selectedMethod
+                });
+                
+                const methodName = selectedMethod === 'average' ? 'moyenne historique' : 'pourcentage actuel';
+                afficherNotification(`🔄 Classement changé vers: ${methodName}`, "#3498db");
+            }
+        }
+
+        // Fonctions de gestion du déplacement du coefficient
+        function initCoefficientDragging() {
+            const coefficientDisplay = document.getElementById('coefficientDisplay');
+            
+            coefficientDisplay.addEventListener('mousedown', startDrag);
+            coefficientDisplay.addEventListener('touchstart', startDrag);
+            
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('touchmove', drag);
+            
+            document.addEventListener('mouseup', stopDrag);
+            document.addEventListener('touchend', stopDrag);
+        }
+
+        function startDrag(e) {
+            e.preventDefault();
+            isDragging = true;
+            
+            const coefficientDisplay = document.getElementById('coefficientDisplay');
+            const rect = coefficientDisplay.getBoundingClientRect();
+            
+            const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+            const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+            
+            dragOffset.x = clientX - rect.left;
+            dragOffset.y = clientY - rect.top;
+            
+            coefficientDisplay.classList.add('dragging');
+            coefficientDisplay.style.transition = 'none';
+        }
+
+        function drag(e) {
+            if (!isDragging) return;
+            
+            e.preventDefault();
+            const coefficientDisplay = document.getElementById('coefficientDisplay');
+            
+            const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+            const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+            
+            let newX = clientX - dragOffset.x;
+            let newY = clientY - dragOffset.y;
+            
+            // Contraintes pour rester dans la fenêtre
+            const maxX = window.innerWidth - coefficientDisplay.offsetWidth;
+            const maxY = window.innerHeight - coefficientDisplay.offsetHeight;
+            
+            newX = Math.max(0, Math.min(newX, maxX));
+            newY = Math.max(0, Math.min(newY, maxY));
+            
+            coefficientDisplay.style.left = newX + 'px';
+            coefficientDisplay.style.top = newY + 'px';
+            coefficientDisplay.style.right = 'auto';
+        }
+
+        function stopDrag() {
+            if (!isDragging) return;
+            
+            isDragging = false;
+            const coefficientDisplay = document.getElementById('coefficientDisplay');
+            
+            coefficientDisplay.classList.remove('dragging');
+            coefficientDisplay.style.transition = 'box-shadow 0.2s ease';
+            
+            // Sauvegarder la position dans le localStorage
+            const rect = coefficientDisplay.getBoundingClientRect();
+            localStorage.setItem('coefficientPosition', JSON.stringify({
+                left: rect.left,
+                top: rect.top
+            }));
+        }
+
+        // Fonction pour restaurer la position du coefficient
+        function restoreCoefficientPosition() {
+            const savedPosition = localStorage.getItem('coefficientPosition');
+            if (savedPosition) {
+                try {
+                    const position = JSON.parse(savedPosition);
+                    const coefficientDisplay = document.getElementById('coefficientDisplay');
+                    
+                    // Vérifier que la position est valide pour la taille actuelle de la fenêtre
+                    const maxX = window.innerWidth - 120; // largeur minimale du coefficient
+                    const maxY = window.innerHeight - 100; // hauteur minimale du coefficient
+                    
+                    if (position.left >= 0 && position.left <= maxX && position.top >= 0 && position.top <= maxY) {
+                        coefficientDisplay.style.left = position.left + 'px';
+                        coefficientDisplay.style.top = position.top + 'px';
+                        coefficientDisplay.style.right = 'auto';
+                    }
+                } catch (error) {
+                    console.log('Erreur lors de la restauration de la position du coefficient');
+                }
+            }
+        }
+
+        // Gestion du statut de connexion
+        function updateConnectionStatus(status, message = '') {
+            const statusEl = document.getElementById('connectionStatus');
+            const icon = statusEl.querySelector('i');
+            const text = statusEl.querySelector('span');
+            
+            statusEl.className = `connection-status ${status}`;
+            
+            switch(status) {
+                case 'connected':
+                    icon.className = 'fas fa-wifi';
+                    text.textContent = 'Connecté';
+                    connectionAttempts = 0;
+                    break;
+                case 'connecting':
+                    icon.className = 'fas fa-spinner fa-spin';
+                    text.textContent = 'Connexion...';
+                    break;
+                case 'disconnected':
+                    icon.className = 'fas fa-wifi-slash';
+                    text.textContent = message || 'Déconnecté';
+                    break;
+            }
+        }
+
+        // FONCTION POUR AFFICHER LE CLASSEMENT AVEC ANIMATIONS ET INDICATEURS
+        function displayRangeRankings(rankings) {
+            const rankingsContainer = document.getElementById('rangeRankings');
+            
+            // Stocker les positions actuelles avant la mise à jour
+            const currentPositions = new Map();
+            rankings.forEach((range, index) => {
+                currentPositions.set(range.name, index + 1);
+            });
+            
+            // Comparer avec les positions précédentes pour déterminer les mouvements
+            const movements = new Map();
+            if (previousRankings.length > 0) {
+                rankings.forEach((range, newIndex) => {
+                    const newPosition = newIndex + 1;
+                    const oldRange = previousRankings.find(r => r.name === range.name);
+                    if (oldRange) {
+                        const oldPosition = oldRange.position;
+                        if (oldPosition !== newPosition) {
+                            if (oldPosition > newPosition) {
+                                movements.set(range.name, 'up');
+                            } else {
+                                movements.set(range.name, 'down');
+                            }
+                        } else {
+                            movements.set(range.name, 'stable');
+                        }
+                    }
+                });
+            }
+            
+            // Vider et reconstruire le classement
+            rankingsContainer.innerHTML = '';
+            
+            rankings.forEach((range, index) => {
+                const item = document.createElement('div');
+                item.className = 'ranking-item';
+                item.id = `ranking-${range.name.replace(/\s+/g, '-')}`;
+                
+                // Déterminer l'indicateur de changement
+                let changeIcon = '➡️';
+                let changeClass = 'same';
+                
+                if (range.previousPosition && range.previousPosition !== range.position) {
+                    if (range.previousPosition > range.position) {
+                        changeIcon = '↗️';
+                        changeClass = 'up';
+                    } else {
+                        changeIcon = '↘️';
+                        changeClass = 'down';
+                    }
+                }
+                
+                // Afficher selon la méthode de classement
+                let primaryValue, secondaryValue;
+                if (currentRankingMethod === 'average') {
+                    primaryValue = range.averagePercentage.toFixed(1) + '%';
+                    secondaryValue = `Act: ${range.currentPercentage.toFixed(1)}%`;
+                } else {
+                    primaryValue = range.currentPercentage.toFixed(1) + '%';
+                    secondaryValue = `Moy: ${range.averagePercentage.toFixed(1)}%`;
+                }
+                
+                item.innerHTML = `
+                    <div class="ranking-position">${range.position}</div>
+                    <div class="ranking-color" style="background-color: ${range.color};"></div>
+                    <div class="ranking-info">
+                        <div class="ranking-name">${range.name}</div>
+                        <div class="ranking-stats">
+                            <span>${secondaryValue}</span>
+                            <span>Échantillon: ${range.totalCount}</span>
+                            <span>Limite: ${range.limit}</span>
+                        </div>
+                    </div>
+                    <div class="ranking-percentage">${primaryValue}</div>
+                    <div class="ranking-change ${changeClass}">${changeIcon}</div>
+                `;
+                
+                // Ajouter les classes d'animation selon le mouvement
+                const movement = movements.get(range.name);
+                if (movement === 'up') {
+                    item.classList.add('moving-up');
+                    // Animer aussi le badge de position
+                    const positionBadge = item.querySelector('.ranking-position');
+                    positionBadge.classList.add('position-up');
+                } else if (movement === 'down') {
+                    item.classList.add('moving-down');
+                    // Animer aussi le badge de position
+                    const positionBadge = item.querySelector('.ranking-position');
+                    positionBadge.classList.add('position-down');
+                } else if (movement === 'stable' && previousRankings.length > 0) {
+                    item.classList.add('stable');
+                }
+                
+                // Nettoyer les classes d'animation après la fin de l'animation
+                setTimeout(() => {
+                    item.classList.remove('moving-up', 'moving-down', 'stable');
+                    const positionBadge = item.querySelector('.ranking-position');
+                    if (positionBadge) {
+                        positionBadge.classList.remove('position-up', 'position-down');
+                    }
+                }, 1200); // Durée de l'animation
+                
+                rankingsContainer.appendChild(item);
+            });
+            
+            // Sauvegarder le classement actuel pour la prochaine comparaison
+            previousRankings = rankings.map(range => ({ ...range }));
+            
+            // Mettre à jour les indicateurs de plage active avec le coefficient actuel
+            if (currentCoefficient !== null) {
+                updateActiveRangeIndicators(currentCoefficient);
+            }
+        }
+
+        // FONCTION POUR INITIALISER LE GRAPHIQUE POLYVALENT AMÉLIORÉ
+        function initAllRangesChart() {
+            const ctx = document.getElementById('allRangesChart').getContext('2d');
+            
+            allRangesChart = new Chart(ctx, {
+                type: currentChartType,
+                data: {
+                    labels: [],
+                    datasets: []
+                },
+                options: getChartOptions()
+            });
+        }
+
+        // FONCTION POUR OBTENIR LES OPTIONS DE GRAPHIQUE AMÉLIORÉE
+        function getChartOptions() {
+            const baseOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const range = rangeRankings[context.dataIndex];
+                                if (!range) return '';
+                                
+                                if (context.datasetIndex === 0) {
+                                    return `${range.name}: ${range.currentPercentage.toFixed(2)}% (${range.count}/${range.totalCount})`;
+                                } else if (context.datasetIndex === 1) {
+                                    return `Moyenne: ${range.averagePercentage.toFixed(2)}%`;
+                                }
+                                return context.label + ': ' + context.parsed;
+                            }
+                        }
+                    }
+                }
+            };
+
+            // Options spécifiques selon le type de graphique
+            if (currentChartType === 'bar' || currentChartType === 'horizontalBar') {
+                baseOptions.scales = {
+                    x: {
+                        title: {
+                            display: true,
+                            text: currentChartType === 'horizontalBar' ? 'Pourcentage (%)' : 'Plages'
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: currentChartType === 'horizontalBar' ? 'Plages' : 'Pourcentage (%)'
+                        },
+                        beginAtZero: true,
+                        max: 100
+                    }
+                };
+            } else if (currentChartType === 'line' || currentChartType === 'area') {
+                baseOptions.scales = {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Plages'
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Pourcentage (%)'
+                        },
+                        beginAtZero: true,
+                        max: 100
+                    }
+                };
+                // Pour les graphiques en aire, activer le remplissage
+                if (currentChartType === 'area') {
+                    baseOptions.elements = {
+                        line: {
+                            fill: true
+                        }
+                    };
+                }
+            } else if (currentChartType === 'scatter' || currentChartType === 'bubble') {
+                baseOptions.scales = {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Index de plage'
+                        },
+                        type: 'linear',
+                        position: 'bottom'
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Pourcentage (%)'
+                        },
+                        beginAtZero: true,
+                        max: 100
+                    }
+                };
+            } else if (currentChartType === 'radar') {
+                baseOptions.scales = {
+                    r: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                };
+            }
+
+            return baseOptions;
+        }
+
+        // FONCTION POUR METTRE À JOUR LE GRAPHIQUE POLYVALENT AMÉLIORÉE
+        function updateAllRangesChart() {
+            if (!allRangesChart || !rangeRankings.length) return;
+            
+            const labels = rangeRankings.map(range => range.name);
+            const colors = rangeRankings.map(range => range.color);
+            const borderColors = rangeRankings.map(range => range.color);
+            
+            // Données selon le type sélectionné
+            let datasets = [];
+            
+            if (currentDataType === 'current' || currentDataType === 'both') {
+                const currentData = rangeRankings.map(range => range.currentPercentage);
+                
+                if (['pie', 'doughnut', 'polarArea'].includes(currentChartType)) {
+                    datasets.push({
+                        label: 'Pourcentages actuels',
+                        data: currentData,
+                        backgroundColor: colors.map(c => c + '80'),
+                        borderColor: borderColors,
+                        borderWidth: 2
+                    });
+                } else if (['scatter', 'bubble'].includes(currentChartType)) {
+                    // Pour les graphiques scatter/bubble, créer des points de données
+                    const scatterData = rangeRankings.map((range, index) => ({
+                        x: index + 1,
+                        y: range.currentPercentage,
+                        r: currentChartType === 'bubble' ? Math.max(range.count / 10, 5) : undefined
+                    }));
+                    
+                    datasets.push({
+                        label: 'Pourcentage actuel',
+                        data: scatterData,
+                        backgroundColor: colors.map(c => c + '80'),
+                        borderColor: borderColors,
+                        borderWidth: 2
+                    });
+                } else {
+                    datasets.push({
+                        label: 'Pourcentage actuel',
+                        data: currentData,
+                        backgroundColor: currentChartType === 'area' ? colors.map(c => c + '40') : colors.map(c => c + '80'),
+                        borderColor: borderColors,
+                        borderWidth: 2,
+                        tension: ['line', 'area'].includes(currentChartType) ? 0.4 : (currentChartType === 'radar' ? 0.4 : 0),
+                        fill: currentChartType === 'area' ? 'origin' : false
+                    });
+                }
+            }
+            
+            if ((currentDataType === 'average' || currentDataType === 'both') && !['pie', 'doughnut', 'polarArea', 'scatter', 'bubble'].includes(currentChartType)) {
+                const averageData = rangeRankings.map(range => range.averagePercentage);
+                
+                datasets.push({
+                    label: 'Moyenne historique',
+                    data: averageData,
+                    backgroundColor: currentChartType === 'area' ? 'rgba(243, 156, 18, 0.2)' : 'rgba(243, 156, 18, 0.3)',
+                    borderColor: '#f39c12',
+                    borderWidth: 2,
+                    type: currentChartType === 'bar' ? 'line' : undefined,
+                    tension: ['line', 'area', 'radar'].includes(currentChartType) ? 0.4 : 0,
+                    fill: currentChartType === 'area' ? 'origin' : false
+                });
+            }
+            
+            // Pour les graphiques en secteurs, utiliser seulement les données actuelles si "both" est sélectionné
+            if (['pie', 'doughnut', 'polarArea'].includes(currentChartType) && currentDataType === 'both') {
+                currentDataType = 'current';
+                document.getElementById('dataType').value = 'current';
+            }
+            
+            // Pour scatter/bubble, ne pas afficher les moyennes avec "both"
+            if (['scatter', 'bubble'].includes(currentChartType) && currentDataType === 'both') {
+                currentDataType = 'current';
+                document.getElementById('dataType').value = 'current';
+            }
+            
+            allRangesChart.data.labels = ['scatter', 'bubble'].includes(currentChartType) ? [] : labels;
+            allRangesChart.data.datasets = datasets;
+            
+            allRangesChart.update();
+        }
+
+        // FONCTION POUR CHANGER LE TYPE DE GRAPHIQUE AMÉLIORÉE
+        function changeChartType() {
+            const newChartType = document.getElementById('chartType').value;
+            
+            if (newChartType !== currentChartType) {
+                currentChartType = newChartType;
+                
+                // Détruire l'ancien graphique
+                if (allRangesChart) {
+                    allRangesChart.destroy();
+                }
+                
+                // Créer le nouveau graphique
+                const ctx = document.getElementById('allRangesChart').getContext('2d');
+                
+                allRangesChart = new Chart(ctx, {
+                    type: currentChartType,
+                    data: {
+                        labels: [],
+                        datasets: []
+                    },
+                    options: getChartOptions()
+                });
+                
+                // Mettre à jour avec les données actuelles
+                updateAllRangesChart();
+                
+                afficherNotification(`📊 Graphique changé vers: ${getChartTypeName(currentChartType)}`, "#3498db");
+            }
+        }
+
+        // FONCTION POUR CHANGER LE TYPE DE DONNÉES AMÉLIORÉE
+        function changeDataType() {
+            const newDataType = document.getElementById('dataType').value;
+            
+            if (newDataType !== currentDataType) {
+                currentDataType = newDataType;
+                
+                // Pour les graphiques en secteurs et scatter/bubble, forcer "current" si "both" ou "average" est sélectionné
+                if (['pie', 'doughnut', 'polarArea', 'scatter', 'bubble'].includes(currentChartType) && (currentDataType === 'both' || currentDataType === 'average')) {
+                    currentDataType = 'current';
+                    document.getElementById('dataType').value = 'current';
+                    afficherNotification("⚠️ Ce type de graphique n'affiche que les pourcentages actuels", "#f39c12");
+                }
+                
+                updateAllRangesChart();
+                
+                const dataTypeName = {
+                    'current': 'Pourcentages actuels',
+                    'average': 'Moyennes historiques',
+                    'both': 'Les deux types de données'
+                }[currentDataType];
+                
+                afficherNotification(`📈 Données changées vers: ${dataTypeName}`, "#3498db");
+            }
+        }
+
+        // FONCTION UTILITAIRE POUR OBTENIR LE NOM DU TYPE DE GRAPHIQUE AMÉLIORÉE
+        function getChartTypeName(type) {
+            const names = {
+                'bar': 'Barres verticales',
+                'horizontalBar': 'Barres horizontales',
+                'line': 'Courbes d\'évolution',
+                'area': 'Zones d\'aires',
+                'scatter': 'Nuage de points',
+                'bubble': 'Graphique à bulles',
+                'doughnut': 'Camembert',
+                'pie': 'Graphique en secteurs',
+                'radar': 'Radar',
+                'polarArea': 'Aires polaires'
+            };
+            return names[type] || type;
+        }
+
+        // Initialiser l'application
+        document.addEventListener('DOMContentLoaded', () => {
+            // Vérifier si l'utilisateur est connecté
+            if (localStorage.getItem('isLoggedIn') === 'true') {
+                document.getElementById('loginOverlay').style.display = 'none';
+                document.getElementById('usernameDisplay').textContent = localStorage.getItem('username') || 'Utilisateur';
+                initSocket();
+            } else {
+                document.getElementById('loginOverlay').style.display = 'flex';
+                updateConnectionStatus('disconnected', 'Non connecté');
+            }
+            
+            // Charger les paramètres sonores
+            loadSoundSettings();
+            
+            // Initialiser l'affichage des plages par défaut même sans connexion
+            renderRanges();
+            initAllRangesChart();
+
+            // Gestionnaires d'événements
+            document.getElementById('medianSize').addEventListener('change', updateCustomSizes);
+            document.getElementById('meanSize').addEventListener('change', updateCustomSizes);
+            document.getElementById('resetStatsBtn').addEventListener('click', resetStatistics);
+            document.getElementById('resetBalanceBtn').addEventListener('click', resetBalanceEquilibrium);
+            document.getElementById('loginForm').addEventListener('submit', handleLogin);
+            document.getElementById('logoutBtn').addEventListener('click', handleLogout);
+            document.getElementById('pollingToggle').addEventListener('change', togglePolling);
+            document.getElementById('historySize').addEventListener('change', setHistorySize);
+            document.getElementById('itemsPerPage').addEventListener('change', changeItemsPerPage);
+            document.getElementById('medianSize').addEventListener('change', analyzeData);
+            document.getElementById('meanSize').addEventListener('change', analyzeData);
+            document.getElementById('placeBetBtn').addEventListener('click', placeBet);
+            document.getElementById('floatingBetBtn').addEventListener('click', placeDirectBet);
+            document.getElementById('quickPlaceBetBtn').addEventListener('click', placeQuickBet);
+            document.querySelector('.quick-bet-close').addEventListener('click', closeQuickBetModal);
+            document.getElementById('addRangeBtn').addEventListener('click', openRangeModal);
+            document.getElementById('saveRangeBtn').addEventListener('click', saveRange);
+            document.querySelector('.close').addEventListener('click', closeRangeModal);
+            document.getElementById('toggleSettings').addEventListener('click', toggleSettings);
+            document.getElementById('authToken').addEventListener('change', updateAuthToken);
+            document.querySelector('.toggle-password').addEventListener('click', togglePasswordVisibility);
+            document.getElementById('rangeColor').addEventListener('input', updateColorPreview);
+            document.getElementById('prevPageBtn').addEventListener('click', goToPreviousPage);
+            document.getElementById('nextPageBtn').addEventListener('click', goToNextPage);
+            
+            // NOUVEAUX GESTIONNAIRES: Modal de confirmation pour la taille d'historique
+            document.getElementById('historySizeCancel').addEventListener('click', cancelHistorySize);
+            document.getElementById('historySizeConfirm').addEventListener('click', confirmHistorySize);
+            
+            // Gestionnaire pour le changement de méthode de classement
+            document.getElementById('rankingMethod').addEventListener('change', changeRankingMethod);
+            
+            // Gestionnaires pour les graphiques
+            document.getElementById('chartType').addEventListener('change', changeChartType);
+            document.getElementById('dataType').addEventListener('change', changeDataType);
+            
+            // Gestionnaires pour les notifications sonores
+            document.getElementById('soundNotifications').addEventListener('change', updateSoundSettings);
+            document.getElementById('soundVolume').addEventListener('input', () => {
+                soundVolume = document.getElementById('soundVolume').value / 100;
+                document.getElementById('volumeDisplay').textContent = Math.round(soundVolume * 100) + '%';
+                localStorage.setItem('soundVolume', soundVolume);
+            });
+            
+            // Initialiser le système de déplacement du coefficient
+            initCoefficientDragging();
+            restoreCoefficientPosition();
+            
+            // Fermer les modals si on clique en dehors
+            window.addEventListener('click', (e) => {
+                const rangeModal = document.getElementById('rangeModal');
+                const quickBetModal = document.getElementById('quickBetModal');
+                const historySizeModal = document.getElementById('historySizeConfirmation');
+                
+                if (e.target === rangeModal) {
+                    closeRangeModal();
+                } else if (e.target === quickBetModal) {
+                    closeQuickBetModal();
+                } else if (e.target === historySizeModal) {
+                    cancelHistorySize();
+                }
+            });
+
+            // Ajuster la position du coefficient lors du redimensionnement de la fenêtre
+            window.addEventListener('resize', () => {
+                if (document.getElementById('coefficientDisplay').style.left !== '') {
+                    const coefficientDisplay = document.getElementById('coefficientDisplay');
+                    const rect = coefficientDisplay.getBoundingClientRect();
+                    
+                    const maxX = window.innerWidth - coefficientDisplay.offsetWidth;
+                    const maxY = window.innerHeight - coefficientDisplay.offsetHeight;
+                    
+                    if (rect.left > maxX) {
+                        coefficientDisplay.style.left = maxX + 'px';
+                    }
+                    if (rect.top > maxY) {
+                        coefficientDisplay.style.top = maxY + 'px';
+                    }
+                }
+                
+                // Redimensionner le graphique
+                if (allRangesChart) {
+                    allRangesChart.resize();
+                }
+            });
+
+            // Mettre à jour le statut de connexion initial
+            updateConnectionStatus('disconnected');
+            
+            // Initialiser l'audio sur interaction utilisateur
+            document.addEventListener('click', () => {
+                if (!audioContext) {
+                    initAudioSystem();
+                }
+            }, { once: true });
+        });
+
+        function updateCustomSizes() {
+            if (!isConnected) return;
+            
+            // Ajouter animation aux cartes
+            const meanCard = document.getElementById('meanCard');
+            const medianCard = document.getElementById('medianCard');
+            meanCard.classList.add('updating');
+            medianCard.classList.add('updating');
+            setTimeout(() => {
+                meanCard.classList.remove('updating');
+                medianCard.classList.remove('updating');
+            }, 600);
+            
+            socket.emit('message', {
+                type: 'updateCustomSizes',
+                customSizes: {
+                    median: parseInt(document.getElementById('medianSize').value),
+                    mean: parseInt(document.getElementById('meanSize').value)
+                }
+            });
+        }
+
+        function resetStatistics() {
+            if (!isConnected) {
+                afficherNotification("❌ Non connecté au serveur", "#e74c3c");
+                return;
+            }
+            
+            // Créer une modal de confirmation personnalisée
+            showConfirmDialog("Voulez-vous vraiment réinitialiser toutes les statistiques?\nCette action est irréversible.", () => {
+                socket.emit('message', { type: 'clearMedianMeanHistory' });
+                afficherNotification("🔄 Réinitialisation en cours...", "#3498db");
+            });
+        }
+
+        // Fonction pour créer une modal de confirmation personnalisée
+        function showConfirmDialog(message, onConfirm) {
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.style.display = 'flex';
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width: 400px;">
+                    <div class="modal-header">
+                        <h3><i class="fas fa-exclamation-triangle"></i> Confirmation</h3>
+                    </div>
+                    <div class="modal-body">
+                        <p style="margin-bottom: 1.5rem; line-height: 1.5; white-space: pre-line;">${message}</p>
+                        <div style="display: flex; gap: 1rem;">
+                            <button class="btn btn-secondary full-width cancel-btn">
+                                <i class="fas fa-times"></i> Annuler
+                            </button>
+                            <button class="btn secondary-btn full-width confirm-btn">
+                                <i class="fas fa-check"></i> Confirmer
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            const cancelBtn = modal.querySelector('.cancel-btn');
+            const confirmBtn = modal.querySelector('.confirm-btn');
+            
+            cancelBtn.addEventListener('click', () => {
+                document.body.removeChild(modal);
+            });
+            
+            confirmBtn.addEventListener('click', () => {
+                document.body.removeChild(modal);
+                onConfirm();
+            });
+            
+            // Fermer en cliquant en dehors
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    document.body.removeChild(modal);
+                }
+            });
+        }
+
+        // Fonction pour mettre à jour l'auth token
+        function updateAuthToken() {
+            if (!isConnected) return;
+            
+            const authToken = document.getElementById('authToken').value;
+            if (authToken) {
+                socket.emit('message', {
+                    type: 'updateAuthToken',
+                    authToken: authToken
+                });
+            }
+        }
+
+        // Gérer la connexion
+        async function handleLogin(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorEl = document.getElementById('loginError');
+            
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    localStorage.setItem('isLoggedIn', 'true');
+                    localStorage.setItem('username', username);
+                    
+                    // Stocker et afficher les informations utilisateur
+                    if (data.userInfo) {
+                        userInfo = data.userInfo;
+                        document.getElementById('usernameDisplay').textContent = userInfo.userName || username;
+                    } else {
+                        document.getElementById('usernameDisplay').textContent = username;
+                    }
+                    
+                    document.getElementById('loginOverlay').style.display = 'none';
+                    initSocket();
+                } else {
+                    errorEl.textContent = data.message || 'Identifiants incorrects';
+                    errorEl.style.display = 'block';
+                }
+            } catch (error) {
+                errorEl.textContent = 'Erreur de connexion au serveur';
+                errorEl.style.display = 'block';
+                console.error('Erreur de connexion:', error);
+            }
+        }
+
+        // Gérer la déconnexion
+        function handleLogout() {
+            localStorage.removeItem('isLoggedIn');
+            localStorage.removeItem('username');
+            if (socket) {
+                socket.disconnect();
+            }
+            if (reconnectTimeout) {
+                clearTimeout(reconnectTimeout);
+            }
+            window.location.reload();
+        }
+
+        // Initialiser la connexion Socket.IO avec gestion améliorée des erreurs
+        function initSocket() {
+            updateConnectionStatus('connecting');
+            
+            socket = io({
+                timeout: 20000,
+                forceNew: true,
+                reconnection: true,
+                reconnectionDelay: 1000,
+                reconnectionDelayMax: 5000,
+                reconnectionAttempts: maxConnectionAttempts
+            });
+            
+            socket.on('connect', () => {
+                console.log('Socket.IO connecté');
+                isConnected = true;
+                updateConnectionStatus('connected');
+                afficherNotification("✅ Connecté au serveur", "#2ecc71");
+                updateBalance();
+            });
+
+            // GESTIONNAIRE POUR LE REDÉMARRAGE DU SERVEUR
+            socket.on('serverRestart', (message) => {
+                console.log('🔄 Redémarrage du serveur détecté');
+                afficherNotification("🔄 " + message.message, "#f39c12");
+                
+                // Vider toutes les données côté client
+                clearAllClientData();
+            });
+
+            socket.on('customSizesUpdated', (message) => {
+                if (message.success) {
+                    console.log('Tailles mises à jour:', message.customSizes);
+                    afficherNotification("✅ Tailles sauvegardées", "#2ecc71");
+                }
+            });
+
+            // Gestionnaire pour l'auth token mis à jour
+            socket.on('authTokenUpdated', (message) => {
+                if (message.success) {
+                    afficherNotification("✅ Auth token mis à jour", "#2ecc71");
+                } else {
+                    afficherNotification("❌ " + message.message, "#e74c3c");
+                }
+            });
+
+            // Gestionnaire pour le changement de méthode de classement
+            socket.on('rankingMethodUpdated', (message) => {
+                if (message.success) {
+                    afficherNotification("✅ " + message.message, "#2ecc71");
+                } else {
+                    afficherNotification("❌ " + message.message, "#e74c3c");
+                }
+            });
+
+            // Gestionnaire pour le changement de méthode avec nouveau classement
+            socket.on('rankingMethodChanged', (message) => {
+                currentRankingMethod = message.rankingMethod;
+                
+                // Mettre à jour le sélecteur si nécessaire
+                document.getElementById('rankingMethod').value = currentRankingMethod;
+                
+                // Mettre à jour l'affichage du classement
+                if (message.rangeRankings) {
+                    rangeRankings = message.rangeRankings;
+                    displayRangeRankings(rangeRankings);
+                    updateAllRangesChart();
+                }
+                
+                // Mettre à jour l'équilibre si présent
+                if (message.balanceEquilibrium) {
+                    updateBalanceEquilibriumDisplay(message.balanceEquilibrium);
+                }
+                
+                const methodName = currentRankingMethod === 'average' ? 'moyenne historique' : 'pourcentage actuel';
+                console.log('🔄 Méthode de classement changée vers:', methodName);
+            });
+
+            // Gestion de la réponse du serveur pour la réinitialisation
+            socket.on('medianMeanHistoryCleared', (message) => {
+                if (message.success) {
+                    afficherNotification("✅ Statistiques réinitialisées", "#2ecc71");
+                    analyzeData();
+                } else {
+                    afficherNotification("❌ Échec de la réinitialisation", "#e74c3c");
+                }
+            });
+
+            // GESTIONNAIRE MODIFIÉ: pour la réinitialisation de l'équilibre
+            socket.on('balanceEquilibriumHistoryCleared', (message) => {
+                if (message.success) {
+                    afficherNotification("✅ Historique d'équilibre réinitialisé", "#2ecc71");
+                    updateBalanceEquilibriumDisplay(null);
+                } else {
+                    afficherNotification("❌ Échec de la réinitialisation de l'équilibre", "#e74c3c");
+                }
+            });
+            
+            socket.on('init', (message) => {
+                crashHistory = message.data.history || [];
+                document.getElementById('historySize').value = message.data.historySize;
+                originalHistorySize = message.data.historySize; // Sauvegarder la valeur originale
+                document.getElementById('pollingToggle').checked = message.data.isPolling;
+
+                const medianSize = message.data.customSizes?.median;
+                const meanSize = message.data.customSizes?.mean;
+                document.getElementById('medianSize').value = medianSize;
+                document.getElementById('meanSize').value = meanSize;
+
+                // Traiter les informations utilisateur et coefficient
+                if (message.data.userInfo) {
+                    userInfo = message.data.userInfo;
+                    document.getElementById('usernameDisplay').textContent = userInfo.userName || 'Utilisateur';
+                }
+
+                if (message.data.currentCoefficient !== null && message.data.currentCoefficient !== undefined) {
+                    currentCoefficient = message.data.currentCoefficient;
+                    updateCoefficientDisplay(currentCoefficient);
+                }
+                  
+                if (message.data.ranges) {
+                    currentRanges = message.data.ranges;
+                }
+
+                // Traiter la méthode de classement
+                if (message.data.rankingMethod) {
+                    currentRankingMethod = message.data.rankingMethod;
+                    document.getElementById('rankingMethod').value = currentRankingMethod;
+                }
+
+                // Traiter le classement initial
+                if (message.data.rangeRankings) {
+                    rangeRankings = message.data.rangeRankings;
+                    displayRangeRankings(rangeRankings);
+                    updateAllRangesChart();
+                }
+
+                // TRAITEMENT MODIFIÉ: pour l'équilibre initial
+                if (message.data.balanceEquilibrium) {
+                    currentBalanceEquilibrium = message.data.balanceEquilibrium;
+                    updateBalanceEquilibriumDisplay(currentBalanceEquilibrium);
+                }
+
+                if (message.data.balanceEquilibriumHistory) {
+                    balanceEquilibriumHistory = message.data.balanceEquilibriumHistory;
+                }
+                
+                renderRanges();
+                updatePagination();
+                renderHistory();
+                analyzeData();
+            });
+
+            // Gestionnaire pour les mises à jour de coefficient
+            socket.on('coefficientUpdate', (message) => {
+                if (message.coefficient !== null && message.coefficient !== undefined) {
+                    currentCoefficient = message.coefficient;
+                    updateCoefficientDisplay(currentCoefficient);
+                    console.log('📈 Coefficient mis à jour:', currentCoefficient);
+                }
+            });
+            
+            socket.on('update', (message) => {
+                console.log('Mise à jour reçue:', message.data);
+                if (message.data.newValues && message.data.newValues.length > 0) {
+                    crashHistory = message.data.history;
+                    console.log('Historique mis à jour:', crashHistory.length, 'éléments');
+                    
+                    // Jouer le son de notification si activé
+                    if (message.data.playNotificationSound) {
+                        playNotificationSound();
+                    }
+
+                    // Mettre à jour la méthode de classement si elle a changé
+                    if (message.data.rankingMethod && message.data.rankingMethod !== currentRankingMethod) {
+                        currentRankingMethod = message.data.rankingMethod;
+                        document.getElementById('rankingMethod').value = currentRankingMethod;
+                    }
+                    
+                    // Traiter le nouveau classement avec animations
+                    if (message.data.rangeRankings) {
+                        rangeRankings = message.data.rangeRankings;
+                        displayRangeRankings(rangeRankings);
+                        updateAllRangesChart();
+                    }
+
+                    // TRAITEMENT MODIFIÉ: pour l'équilibre mis à jour
+                    if (message.data.balanceEquilibrium) {
+                        currentBalanceEquilibrium = message.data.balanceEquilibrium;
+                        updateBalanceEquilibriumDisplay(currentBalanceEquilibrium);
+                    }
+
+                    if (message.data.balanceEquilibriumHistory) {
+                        balanceEquilibriumHistory = message.data.balanceEquilibriumHistory;
+                    }
+                    
+                    updatePagination();
+                    renderHistory();
+                    analyzeData();
+                    updateBalance();
+                    updateLastUpdated();
+                    afficherNotification(`✅ ${message.data.newValues.length} nouvelles données récupérées`, "#2ecc71");
+                }
+            });
+            
+            socket.on('balance', (message) => {
+                if (message.data !== null && !isNaN(message.data)) {
+                    document.getElementById('soldeAffichage').innerHTML = `<i class="fas fa-coins"></i> <span>${message.data} FCFA</span>`;
+                } else {
+                    document.getElementById('soldeAffichage').innerHTML = `<i class="fas fa-exclamation-triangle"></i> <span>Erreur</span>`;
+                }
+            });
+            
+            socket.on('betResult', (message) => {
+                handleBetResult(message.data);
+            });
+            
+            socket.on('analysis', (message) => {
+                displayAnalysis(message.data);
+            });
+            
+            socket.on('rangesSaved', (message) => {
+                if (message.success) {
+                    afficherNotification("✅ Plages sauvegardées", "#2ecc71");
+                    currentRanges = message.ranges;
+                    renderRanges();
+                } else {
+                    afficherNotification("❌ Erreur: " + (message.message || "Impossible de sauvegarder"), "#e74c3c");
+                }
+            });
+            
+            socket.on('rangesData', (message) => {
+                currentRanges = message.ranges;
+                renderRanges();
+            });
+            
+            socket.on('error', (message) => {
+                afficherNotification("❌ " + message.message, "#e74c3c");
+            });
+            
+            socket.on('connect_error', (error) => {
+                console.error('Erreur de connexion Socket.IO:', error);
+                isConnected = false;
+                updateConnectionStatus('disconnected', 'Erreur de connexion');
+                
+                connectionAttempts++;
+                if (connectionAttempts >= maxConnectionAttempts) {
+                    afficherNotification("❌ Impossible de se connecter au serveur", "#e74c3c");
+                    updateConnectionStatus('disconnected', 'Connexion échouée');
+                }
+            });
+            
+            socket.on('disconnect', (reason) => {
+                console.log('Socket.IO déconnecté:', reason);
+                isConnected = false;
+                updateConnectionStatus('disconnected', 'Connexion perdue');
+                
+                // Masquer le coefficient lors de la déconnexion
+                updateCoefficientDisplay(null);
+                
+                if (reason === 'io server disconnect') {
+                    afficherNotification("🔌 Déconnecté par le serveur", "#f39c12");
+                } else {
+                    afficherNotification("🔌 Connexion perdue", "#f39c12");
+                }
+                
+                // Tentative de reconnexion automatique
+                if (localStorage.getItem('isLoggedIn') === 'true') {
+                    reconnectTimeout = setTimeout(() => {
+                        if (!isConnected) {
+                            updateConnectionStatus('connecting');
+                            afficherNotification("🔄 Tentative de reconnexion...", "#3498db");
+                        }
+                    }, 3000);
+                }
+            });
+        }
+
+        // Fonctions de contrôle
+        function togglePolling(e) {
+            if (!isConnected) {
+                afficherNotification("❌ Non connecté au serveur", "#e74c3c");
+                e.target.checked = !e.target.checked; // Remettre le switch dans sa position précédente
+                return;
+            }
+            
+            if (e.target.checked) {
+                socket.emit('message', { type: 'startPolling' });
+                afficherNotification("✅ Mise à jour automatique activée", "#2ecc71");
+            } else {
+                socket.emit('message', { type: 'stopPolling' });
+                afficherNotification("⏸️ Mise à jour automatique désactivée", "#f39c12");
+            }
+        }
+
+        // FONCTION MODIFIÉE: Définir la taille d'historique avec confirmation
+        function setHistorySize(e) {
+            if (!isConnected) {
+                // Remettre l'ancienne valeur si pas connecté
+                e.target.value = originalHistorySize || 10000;
+                afficherNotification("❌ Non connecté au serveur", "#e74c3c");
+                return;
+            }
+            
+            const newSize = parseInt(e.target.value);
+            if (newSize >= 10 && newSize <= 50000) {
+                // Afficher la modal de confirmation
+                showHistorySizeConfirmation(newSize);
+            } else {
+                // Valeur invalide, remettre l'ancienne
+                e.target.value = originalHistorySize || 10000;
+                afficherNotification("❌ Taille invalide (10-50000)", "#e74c3c");
+            }
+        }
+
+        function updateBalance() {
+            if (!isConnected) return;
+            
+            socket.emit('message', { type: 'getBalance' });
+        }
+
+        function placeBet() {
+            if (!isConnected) {
+                afficherNotification("❌ Non connecté au serveur", "#e74c3c");
+                return;
+            }
+            
+            const amount = parseFloat(document.getElementById('betAmount').value);
+            const autoCash = parseFloat(document.getElementById('autoCashout').value);
+            
+            if (isNaN(amount) || amount <= 0) {
+                afficherNotification("❌ Montant invalide", "#e74c3c");
+                return;
+            }
+            
+            if (isNaN(autoCash) || autoCash < 1.01) {
+                afficherNotification("❌ Auto cashout invalide", "#e74c3c");
+                return;
+            }
+            
+            afficherNotification("⏳ Envoi du pari...", "#3498db");
+            
+            socket.emit('message', {
+                type: 'placeBet',
+                amount,
+                autoCash
+            });
+        }
+
+        function openQuickBetModal() {
+            const quickBetModal = document.getElementById('quickBetModal');
+            
+            document.getElementById('quickBetAmount').value = document.getElementById('betAmount').value;
+            document.getElementById('quickAutoCashout').value = document.getElementById('autoCashout').value;
+            
+            quickBetModal.style.display = 'flex';
+        }
+
+        function closeQuickBetModal() {
+            document.getElementById('quickBetModal').style.display = 'none';
+        }
+
+        function placeQuickBet() {
+            if (!isConnected) {
+                afficherNotification("❌ Non connecté au serveur", "#e74c3c");
+                return;
+            }
+            
+            const amount = parseFloat(document.getElementById('quickBetAmount').value);
+            const autoCash = parseFloat(document.getElementById('quickAutoCashout').value);
+            
+            if (isNaN(amount) || amount <= 0) {
+                afficherNotification("❌ Montant invalide", "#e74c3c");
+                return;
+            }
+            
+            if (isNaN(autoCash) || autoCash < 1.01) {
+                afficherNotification("❌ Auto cashout invalide", "#e74c3c");
+                return;
+            }
+            
+            afficherNotification("⏳ Envoi du pari rapide...", "#3498db");
+            
+            socket.emit('message', {
+                type: 'placeBet',
+                amount,
+                autoCash
+            });
+            
+            closeQuickBetModal();
+        }
+
+        function placeDirectBet() {
+            if (!isConnected) {
+                afficherNotification("❌ Non connecté au serveur", "#e74c3c");
+                return;
+            }
+            
+            const amount = parseFloat(document.getElementById('betAmount').value);
+            const autoCash = parseFloat(document.getElementById('autoCashout').value);
+            
+            if (isNaN(amount) || amount <= 0) {
+                afficherNotification("❌ Montant invalide", "#e74c3c");
+                return;
+            }
+            
+            if (isNaN(autoCash) || autoCash < 1.01) {
+                afficherNotification("❌ Auto cashout invalide", "#e74c3c");
+                return;
+            }
+            
+            afficherNotification("⚡ Pari direct...", "#3498db");
+            
+            socket.emit('message', {
+                type: 'placeBet',
+                amount,
+                autoCash
+            });
+        }
+
+        function handleBetResult(data) {
+            console.log('Résultat du pari:', data);
+            
+            if (data.status === "success") {
+                const betId = data.bet?.id || "inconnu";
+                afficherNotification("✅ Pari accepté -- ID: " + betId, "#2ecc71");
+                updateBalance();
+            } else if (data.status === "error") {
+                let message = "❌ Erreur: ";
+                
+                if (data.code === 37 || data.error === "Insufficient balance.") {
+                    message += "Solde insuffisant";
+                } else {
+                    message += data.error || data.message || "échec du pari";
+                }
+                
+                afficherNotification(message, "#e74c3c");
+            } else {
+                afficherNotification("❌ Réponse inattendue du serveur", "#e74c3c");
+            }
+        }
+
+        // Fonctions de pagination
+        function updatePagination() {
+            totalPages = Math.ceil(crashHistory.length / itemsPerPage);
+            document.getElementById('totalPages').textContent = totalPages;
+            
+            if (currentPage > totalPages && totalPages > 0) {
+                currentPage = totalPages;
+            }
+            
+            document.getElementById('currentPage').textContent = currentPage;
+            document.getElementById('prevPageBtn').disabled = currentPage <= 1;
+            document.getElementById('nextPageBtn').disabled = currentPage >= totalPages;
+            
+            document.getElementById('totalValueCount').textContent = crashHistory.length;
+        }
+
+        function goToPreviousPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                document.getElementById('currentPage').textContent = currentPage;
+                document.getElementById('prevPageBtn').disabled = currentPage <= 1;
+                document.getElementById('nextPageBtn').disabled = false;
+                renderHistory();
+            }
+        }
+
+        function goToNextPage() {
+            if (currentPage < totalPages) {
+                currentPage++;
+                document.getElementById('currentPage').textContent = currentPage;
+                document.getElementById('prevPageBtn').disabled = false;
+                document.getElementById('nextPageBtn').disabled = currentPage >= totalPages;
+                renderHistory();
+            }
+        }
+
+        function changeItemsPerPage() {
+            itemsPerPage = parseInt(document.getElementById('itemsPerPage').value);
+            currentPage = 1;
+            updatePagination();
+            renderHistory();
+        }
+
+        // Fonctions d'affichage
+        function renderHistory() {
+            const historyContainer = document.getElementById('historyValues');
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = Math.min(startIndex + itemsPerPage, crashHistory.length);
+            const displayHistory = crashHistory.slice(startIndex, endIndex);
+            
+            historyContainer.innerHTML = '';
+            
+            displayHistory.forEach(value => {
+                const item = document.createElement('div');
+                item.className = 'history-item';
+                item.textContent = value.toFixed(2);
+                
+                let bgColor = '#95a5a6';
+                
+                for (const range of currentRanges) {
+                    const { min, max, color } = range;
+                    
+                    if (min !== null && max !== null) {
+                        if (value >= min && value < max) {
+                            bgColor = color;
+                            break;
+                        }
+                    } else if (min !== null) {
+                        if (value >= min) {
+                            bgColor = color;
+                            break;
+                        }
+                    } else if (max !== null) {
+                        if (value < max) {
+                            bgColor = color;
+                            break;
+                        }
+                    }
+                }
+                
+                item.style.backgroundColor = bgColor;
+                historyContainer.appendChild(item);
+            });
+        }
+
+        function analyzeData() {
+            if (!isConnected || crashHistory.length === 0) return;
+            
+            const medianSize = parseInt(document.getElementById('medianSize').value) || crashHistory.length;
+            const meanSize = parseInt(document.getElementById('meanSize').value) || crashHistory.length;
+            
+            const rangesWithLimits = currentRanges.map(range => ({
+                ...range
+            }));
+            
+            socket.emit('message', {
+                type: 'analyze',
+                ranges: rangesWithLimits,
+                customSizes: {
+                    median: medianSize,
+                    mean: meanSize
+                }
+            });
+        }
+
+        // Rendu des plages simplifié
+        function renderRanges() {
+            const rangesContainer = document.getElementById('rangesContainer');
+            rangesContainer.innerHTML = '';
+            
+            currentRanges.forEach((range, index) => {
+                const card = document.createElement('div');
+                card.className = 'range-card';
+                
+                const header = document.createElement('div');
+                header.className = 'range-header';
+                
+                const title = document.createElement('div');
+                title.className = 'range-title';
+                
+                const colorDot = document.createElement('div');
+                colorDot.className = 'range-color';
+                colorDot.style.backgroundColor = range.color;
+                
+                title.appendChild(colorDot);
+                title.appendChild(document.createTextNode(range.name));
+                
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'range-delete';
+                deleteBtn.innerHTML = '<i class="fas fa-times"></i>';
+                deleteBtn.addEventListener('click', () => deleteRange(range.name));
+                
+                header.appendChild(title);
+                header.appendChild(deleteBtn);
+                
+                const statsDiv = document.createElement('div');
+                statsDiv.className = 'range-stats';
+                
+                // Créer les statistiques
+                const countStat = document.createElement('div');
+                countStat.className = 'range-stat';
+                countStat.innerHTML = '<span>Occurrences</span><span id="count-' + range.name.replace(/\s+/g, '-') + '">--</span>';
+                
+                const percentageStat = document.createElement('div');
+                percentageStat.className = 'range-stat';
+                percentageStat.innerHTML = '<span>Pourcentage</span><span id="percentage-' + range.name.replace(/\s+/g, '-') + '">--%</span>';
+                
+                const averageStat = document.createElement('div');
+                averageStat.className = 'range-stat';
+                averageStat.innerHTML = '<span>Moyenne %</span><span id="average-' + range.name.replace(/\s+/g, '-') + '">--%</span>';
+                
+                statsDiv.appendChild(countStat);
+                statsDiv.appendChild(percentageStat);
+                statsDiv.appendChild(averageStat);
+                
+                const progress = document.createElement('div');
+                progress.className = 'range-progress';
+                const progressBar = document.createElement('div');
+                progressBar.className = 'range-progress-bar';
+                progressBar.style.backgroundColor = range.color;
+                progressBar.style.width = '0%';
+                progressBar.id = 'progress-' + range.name.replace(/\s+/g, '-');
+                progress.appendChild(progressBar);
+                
+                card.appendChild(header);
+                card.appendChild(statsDiv);
+                card.appendChild(progress);
+                
+                rangesContainer.appendChild(card);
+            });
+        }
+
+        function displayAnalysis(data) {
+            // Ajouter animation aux cartes
+            const meanCard = document.getElementById('meanCard');
+            const medianCard = document.getElementById('medianCard');
+            meanCard.classList.add('updating');
+            medianCard.classList.add('updating');
+            setTimeout(() => {
+                meanCard.classList.remove('updating');
+                medianCard.classList.remove('updating');
+            }, 600);
+
+            document.getElementById('medianValue').textContent = data.median.toFixed(2);
+            document.getElementById('meanValue').textContent = data.mean.toFixed(2);
+
+            document.getElementById('medianAverageValue').textContent = data.medianOfMedians?.toFixed(2) || '--';
+            document.getElementById('meanAverageValue').textContent = data.meanOfMeans?.toFixed(2) || '--';
+
+            // TRAITEMENT MODIFIÉ: pour l'équilibre dans l'analyse
+            if (data.balanceEquilibrium) {
+                updateBalanceEquilibriumDisplay(data.balanceEquilibrium);
+            }
+            
+            Object.entries(data.ranges).forEach(([name, stats]) => {
+                const safeName = name.replace(/\s+/g, '-');
+                const countEl = document.getElementById('count-' + safeName);
+                const percentageEl = document.getElementById('percentage-' + safeName);
+                const averageEl = document.getElementById('average-' + safeName);
+                const progressEl = document.getElementById('progress-' + safeName);
+                
+                if (countEl) countEl.textContent = stats.count;
+                if (percentageEl) percentageEl.textContent = stats.percentage.toFixed(2) + '%';
+                if (averageEl) averageEl.textContent = stats.averagePercentage ? stats.averagePercentage.toFixed(1) + '%' : '--%';
+                
+                if (progressEl) progressEl.style.width = Math.min(stats.percentage, 100) + '%';
+            });
+        }
+
+        // Gestion des plages
+        function openRangeModal() {
+            document.getElementById('rangeModal').style.display = 'flex';
+            document.getElementById('rangeName').value = '';
+            document.getElementById('rangeMin').value = '';
+            document.getElementById('rangeMax').value = '';
+            document.getElementById('rangeColor').value = '#3498db';
+            document.getElementById('rangeSize').value = '';
+            updateColorPreview();
+        }
+
+        function closeRangeModal() {
+            document.getElementById('rangeModal').style.display = 'none';
+        }
+
+        function saveRange() {
+            const name = document.getElementById('rangeName').value.trim();
+            const minStr = document.getElementById('rangeMin').value.trim();
+            const maxStr = document.getElementById('rangeMax').value.trim();
+            const color = document.getElementById('rangeColor').value;
+            const limitStr = document.getElementById('rangeSize').value.trim();
+            
+            if (!name) {
+                afficherNotification("❌ Veuillez spécifier un nom pour la plage", "#e74c3c");
+                return;
+            }
+            
+            if (!minStr && !maxStr) {
+                afficherNotification("❌ Veuillez spécifier au moins une limite", "#e74c3c");
+                return;
+            }
+            
+            const min = minStr ? parseFloat(minStr) : null;
+            const max = maxStr ? parseFloat(maxStr) : null;
+            const limit = limitStr ? parseInt(limitStr) : null;
+            
+            if (min !== null && max !== null && min >= max) {
+                afficherNotification("❌ La valeur minimale doit être inférieure à la valeur maximale", "#e74c3c");
+                return;
+            }
+            
+            const existingIndex = currentRanges.findIndex(r => r.name === name);
+            
+            if (existingIndex !== -1) {
+                currentRanges[existingIndex] = { name, min, max, color, limit };
+            } else {
+                currentRanges.push({ name, min, max, color, limit });
+            }
+            
+            closeRangeModal();
+            renderRanges();
+            analyzeData();
+            
+            if (isConnected) {
+                socket.emit('message', { type: 'saveRanges', ranges: currentRanges });
+            }
+        }
+
+        function deleteRange(name) {
+            const index = currentRanges.findIndex(r => r.name === name);
+            
+            if (index !== -1) {
+                currentRanges.splice(index, 1);
+                renderRanges();
+                analyzeData();
+                
+                if (isConnected) {
+                    socket.emit('message', { type: 'saveRanges', ranges: currentRanges });
+                }
+            }
+        }
+
+        // Utilitaires
+        function updateLastUpdated() {
+            document.getElementById('lastUpdated').innerHTML = `<i class="far fa-clock"></i> Mise à jour: ${new Date().toLocaleTimeString()}`;
+        }
+
+        function toggleSettings() {
+            const panel = document.querySelector('.settings-panel');
+            panel.classList.toggle('collapsed');
+            
+            const icon = document.querySelector('#toggleSettings i');
+            if (panel.classList.contains('collapsed')) {
+                icon.className = 'fas fa-chevron-down';
+            } else {
+                icon.className = 'fas fa-chevron-up';
+            }
+        }
+
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById('authToken');
+            const icon = document.querySelector('.toggle-password i');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.className = 'fas fa-eye-slash';
+            } else {
+                passwordInput.type = 'password';
+                icon.className = 'fas fa-eye';
+            }
+        }
+
+        function updateColorPreview() {
+            const color = document.getElementById('rangeColor').value;
+            document.getElementById('colorPreview').style.backgroundColor = color;
+        }
+
+        function afficherNotification(message, couleur = "#2d3436") {
+            const notif = document.getElementById('serverNotification');
+            notif.textContent = message;
+            notif.style.backgroundColor = couleur;
+            notif.style.left = "20px";
+            notif.style.opacity = "1";
+
+            notif.style.transition = "all 0.5s ease";
+
+            setTimeout(() => {
+                notif.style.left = "-300px";
+                notif.style.opacity = "0";
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
